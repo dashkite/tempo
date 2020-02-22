@@ -33,7 +33,7 @@ update = compact all (text "update"),
   (optional first strip all ws, flag wild)
 
 # refresh command
-refresh = text "refresh"
+refresh = all text "refresh"
 
 # bump command
 major = text "major"
@@ -42,13 +42,13 @@ bump = compact all (text "bump"),
   (optional first strip all ws, (flag any major, minor))
 
 # publish command
-publish = text "publish"
+publish = all text "publish"
 
 # packages command
-list = text "list"
-add = text "add"
-remove = text "remove"
-diff = text "diff"
+list = tag "subcommand", text "list"
+add = tag "subcommand", text "add"
+remove = tag "subcommand", text "remove"
+diff = tag "subcommand", text "diff"
 packages = strip all (text "packages"), ws, (any list, add, remove, diff)
 
 # grammar
