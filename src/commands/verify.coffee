@@ -1,5 +1,6 @@
-import {shell, print} from "./helpers"
+import {shell, log} from "./helpers"
 
 export default ({scope}) ->
-  console.log "Running verify for #{scope ? 'all'}"
-  print shell "npm audit"
+  console.log "Tempo: running verify for #{scope ? 'all'}"
+  logger = log "./tempo.log"
+  logger shell "npm audit"

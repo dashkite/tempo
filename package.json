@@ -26,6 +26,7 @@
   },
   "homepage": "https://github.com/dashkite/tempo#readme",
   "dependencies": {
+    "panda-generics": "^6.0.2",
     "panda-grammar": "^2.0.0",
     "panda-parchment": "^6.0.3"
   },
