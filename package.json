@@ -1,0 +1,36 @@
+{
+  "name": "tempo",
+  "version": "0.0.1",
+  "description": "Polyrepo project and package management",
+  "main": "build/npm/src/index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "p9k test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dashkite/tempo.git"
+  },
+  "keywords": [
+    "polyrepo",
+    "package",
+    "project",
+    "management"
+  ],
+  "author": "Dan Yoder",
+  "license": "SEE LICENSE IN LICENSE.md",
+  "bugs": {
+    "url": "https://github.com/dashkite/tempo/issues"
+  },
+  "homepage": "https://github.com/dashkite/tempo#readme",
+  "dependencies": {
+    "panda-grammar": "^2.0.0",
+    "panda-parchment": "^6.0.3"
+  },
+  "devDependencies": {
+    "panda-9000": "^5.0.2",
+    "panda-builder": "^4.0.13"
+  }
+}

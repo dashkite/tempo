@@ -1,0 +1,12 @@
+import {parse} from "../src/parse"
+
+console.log parse "tempo publish"
+console.log parse "tempo packages list"
+console.log parse "tempo verify"
+console.log parse "tempo verify build"
+console.log parse "tempo update"
+console.log parse "tempo refresh"
+console.log parse "tempo update wild"
+console.log parse "tempo bump"
+console.log parse "tempo bump major"
+console.log parse "tempo notacommand"
