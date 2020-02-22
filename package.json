@@ -30,6 +30,7 @@
     "panda-parchment": "^6.0.3"
   },
   "devDependencies": {
+    "colors": "^1.4.0",
     "panda-9000": "^5.0.2",
     "panda-builder": "^4.0.13"
   }
