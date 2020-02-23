@@ -26,7 +26,6 @@ verify = compact all (text "verify"),
   (optional first strip all ws,
     (tag "scope", (any dependencies, build, constraints)))
 
-
 # update command
 wild = text "wild"
 update = compact all (text "update"),
