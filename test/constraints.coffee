@@ -7,7 +7,15 @@ import {property} from "../src/constraints/combinators"
 
 do ->
 
-  context =
-    package: JSON.parse await read resolve "package.json"
+  console.log colors.green "Property Constraint"
 
-  console.log (property "name", "tempo", context)
+  context =
+    refresh: false
+    package: JSON.parse await read resolve "package.json"
+    constraints: []
+
+  assert (property "name", "tempo", context).constraints[0]?.success?
+  assert (property "scripts.test", "p9k test", context).constraints[1]?.success?
+  assert (property "scripts.fubar", "p9k test", context).constraints[2]?.failure?
+  # assert (property "scripts.test", "p9k test", context)
+  # console.log (property "scripts.foo", "p9k test", context)
