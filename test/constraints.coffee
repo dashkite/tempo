@@ -5,9 +5,28 @@ import colors from "colors/safe"
 
 import {file, property} from "../src/constraints/combinators"
 
+log =
+  indent: ""
+  title: (description) -> console.log colors.blue log.indent, description
+  info: (description) -> console.log colors.green log.indent, description
+  warn: (description) -> console.log colors.red log.indent, description
+
+test = (description, f) ->
+  try
+    await f()
+    log.info description
+  catch error
+    log.warn description
+
+title = (description) ->
+  log.title description
+  log.indent += "  "
+
+end = -> log.indent = log.indent[0...-2]
+
 do ->
 
-  console.log colors.green "Property Constraint"
+  title "Constraints"
 
   context =
     refresh: false
@@ -22,23 +41,34 @@ do ->
       warn: []
       fatal: []
 
+  title "Property"
 
-  assert (await property "package.json", "name", "tempo", context)
-    ?.updates?["package.json"]?
+  await test "update", ->
+    assert.equal true, ((await property "package.json", "name", "tempo", context)
+      ?.updates?["package.json"]?)
 
-  assert.equal 1,
-    (await property "package.json", "scripts.test", "p9k test", context)
-    ?.messages?.info?.length
+  await test "with a compound reference", ->
+    assert.equal 1,
+      ((await property "package.json", "scripts.test", "p9k test", context)
+      ?.messages?.info?.length)
 
-  assert.equal 1,
-    (await property "package.json", "scripts.fubar", "p9k test", context)
-    ?.messages?.warn?.length
+  await test "invalid reference", ->
+    assert.equal 1,
+      ((await property "package.json", "scripts.fubar", "p9k test", context)
+      ?.messages?.warn?.length)
 
-  assert (await file "LICENSE.md", context)
-    ?.updates?["LICENSE.md"]?
+  end()
 
-  assert 2, (await file "missing-file", context)
-    ?.messages?.warn?.length
+  title "File"
 
+  await test "no update", ->
+    assert.equal false, ((await file "README.md", context)
+      ?.updates?["README.md"]?)
 
-  console.log colors.green "  Verify"
+  await test "update", ->
+    assert.equal true, ((await file "LICENSE.md", context)
+      ?.updates?["LICENSE.md"]?)
+
+  test "missing file", ->
+    assert 2, (await file "missing-file", context)
+      ?.messages?.warn?.length
