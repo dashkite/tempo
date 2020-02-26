@@ -41,7 +41,7 @@ file = curry rtee (path, context) ->
       context.updates[path] = expected
   catch error
     log.warn context, error.message
-    
+
 serializer = (extension) ->
   switch extension[1..]
     when "json"

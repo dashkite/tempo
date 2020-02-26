@@ -1,34 +1,13 @@
 import assert from "assert"
+import {print, test, success} from "amen"
+
 import {resolve} from "path"
-import {read} from "panda-quill"
-import colors from "colors/safe"
 
 import {file, property} from "../src/constraints/combinators"
 
-log =
-  indent: ""
-  title: (description) -> console.log colors.blue log.indent, description
-  info: (description) -> console.log colors.green log.indent, description
-  warn: (description) -> console.log colors.red log.indent, description
-
-test = (description, f) ->
-  try
-    await f()
-    log.info description
-  catch error
-    log.warn description
-
-title = (description) ->
-  log.title description
-  log.indent += "  "
-
-end = -> log.indent = log.indent[0...-2]
-
 do ->
 
-  title "Constraints"
-
-  context =
+  context = ->
     refresh: false
     project:
       path: resolve "."
@@ -41,34 +20,44 @@ do ->
       warn: []
       fatal: []
 
-  title "Property"
+  print await test "constraints", [
 
-  await test "update", ->
-    assert.equal true, ((await property "package.json", "name", "tempo", context)
-      ?.updates?["package.json"]?)
+    test "property", [
 
-  await test "with a compound reference", ->
-    assert.equal 1,
-      ((await property "package.json", "scripts.test", "p9k test", context)
-      ?.messages?.info?.length)
+      test "update", ->
+        assert.equal true,
+          ((await property "package.json", "name", "tempo", context())
+          ?.updates?["package.json"]?)
 
-  await test "invalid reference", ->
-    assert.equal 1,
-      ((await property "package.json", "scripts.fubar", "p9k test", context)
-      ?.messages?.warn?.length)
+      test "with a compound reference", ->
+        # should not update b/c value is already correct
+        assert.equal 0,
+          ((await property "package.json",
+            "scripts.test", "p9k test", context())
+          ?.messages?.info?.length)
 
-  end()
+      test "invalid reference", ->
+        assert.equal 1,
+          ((await property "package.json",
+            "scripts.fubar", "p9k test", context())
+          ?.messages?.warn?.length)
 
-  title "File"
+    ]
 
-  await test "no update", ->
-    assert.equal false, ((await file "README.md", context)
-      ?.updates?["README.md"]?)
+    test "file", [
 
-  await test "update", ->
-    assert.equal true, ((await file "LICENSE.md", context)
-      ?.updates?["LICENSE.md"]?)
+      test "no update", ->
+        assert.equal false, ((await file "README.md", context())
+          ?.updates?["README.md"]?)
 
-  test "missing file", ->
-    assert 2, (await file "missing-file", context)
-      ?.messages?.warn?.length
+      test "update", ->
+        assert.equal true, ((await file "LICENSE.md", context())
+          ?.updates?["LICENSE.md"]?)
+
+      test "missing file", ->
+        assert 1, (await file "missing-file", context())
+          ?.messages?.warn?.length
+
+    ]
+
+  ]
