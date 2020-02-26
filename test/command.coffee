@@ -1,9 +1,15 @@
 import assert from "assert"
-import {parse} from "../src/parse"
-import colors from "colors/safe"
+import {print, test, success} from "amen"
 
+import {parse} from "../src/parse"
 import commands from "../src/commands"
 
+do ->
+  print await test "command", [
 
-[command, options] = parse "tempo verify constraints"
-commands[command] options
+    test "verify", ->
+
+      [command, options] = parse "tempo rehearse verify constraints"
+      commands[command] options
+
+  ]

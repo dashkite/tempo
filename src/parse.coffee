@@ -3,11 +3,16 @@ import {re, string, list as _list, between, all, any, many, optional,
   tag, merge, join, rule, grammar} from "panda-grammar"
 import {isArray, isString} from "panda-parchment"
 
+log = (label, p) ->
+  rule p, (result) ->
+    console.log [label]: result
+    result
+
 ws = re /^\s+/
 text = string
 strip = (p) -> rule p, ({value}) ->
   if isArray value
-    item for item in value when !(isString item) || !(/^\s+/.test item)
+    item for item in value when !(isString item) || !(/^\s+$/.test item)
   else value
 
 compact = (p) -> rule p, ({value}) ->
@@ -15,6 +20,17 @@ compact = (p) -> rule p, ({value}) ->
 
 first = (p) -> rule p, ({value}) -> value[0]
 second = (p) -> rule p, ({value}) -> value[1]
+
+# TODO why isn't this in parchment?
+_flatten = (ax) ->
+  bx = []
+  for a in ax
+    if isArray a then bx.push (_flatten a)... else bx.push a
+  bx
+
+flatten = (p) -> rule p, ({value}) -> _flatten value
+
+reverse = (p) -> rule p, ({value}) -> value.reverse()
 
 flag = (p) -> rule p, ({value}) -> [value]: true
 
@@ -50,9 +66,18 @@ remove = tag "subcommand", text "remove"
 diff = tag "subcommand", text "diff"
 packages = strip all (text "packages"), ws, (any list, add, remove, diff)
 
+# all the subcommands
+subcommands = (any verify, update, refresh, bump, publish, packages)
+
+# rehearse command
+rehearse = rule (second strip all (text "rehearse"), ws, subcommands),
+  ({value: [command, options]}) ->
+    options ?= {}
+    options.rehearse = true
+    [command, options]
+
 # grammar
-command = second strip all (text "tempo"), ws,
-  (any verify, update, refresh, bump, publish, packages)
+command = second strip all (text "tempo"), ws, (any subcommands, rehearse)
 
 parse = grammar command
 
