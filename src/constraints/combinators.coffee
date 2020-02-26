@@ -34,11 +34,14 @@ log =
 
 
 file = curry rtee (path, context) ->
-  expected = await read resolve context.constraint.path, path
-  actual = await read resolve context.project.path, path
-  if expected != actual
-    context.updates[path] = expected
-
+  try
+    expected = await read resolve context.constraint.path, path
+    actual = await read resolve context.project.path, path
+    if expected != actual
+      context.updates[path] = expected
+  catch error
+    log.warn context, error.message
+    
 serializer = (extension) ->
   switch extension[1..]
     when "json"

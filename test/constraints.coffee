@@ -37,5 +37,8 @@ do ->
   assert (await file "LICENSE.md", context)
     ?.updates?["LICENSE.md"]?
 
+  assert 2, (await file "missing-file", context)
+    ?.messages?.warn?.length
+
 
   console.log colors.green "  Verify"
