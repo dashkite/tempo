@@ -11,10 +11,11 @@ do ->
     refresh: false
     project:
       path: resolve "."
+      cached: {}
+      updates: {}
     constraint:
       path: resolve "test", "files"
-    updates: {}
-    data: {}
+      cached: {}
     messages:
       info: []
       warn: []
@@ -27,7 +28,7 @@ do ->
       test "update", ->
         assert.equal true,
           ((await property "package.json", "name", "tempo", context())
-          ?.updates?["package.json"]?)
+          ?.project?.updates?["package.json"]?)
 
       test "with a compound reference", ->
         # should not update b/c value is already correct
@@ -48,11 +49,11 @@ do ->
 
       test "no update", ->
         assert.equal false, ((await file "README.md", context())
-          ?.updates?["README.md"]?)
+          ?.project?.updates?["README.md"]?)
 
       test "update", ->
         assert.equal true, ((await file "LICENSE.md", context())
-          ?.updates?["LICENSE.md"]?)
+          ?.project?.updates?["LICENSE.md"]?)
 
       test "missing file", ->
         assert 1, (await file "missing-file", context())
