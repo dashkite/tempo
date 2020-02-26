@@ -1,53 +1,75 @@
+import {resolve, extname} from "path"
 import {binary, ternary, curry, rtee} from "panda-garden"
-import {equal, last} from "panda-parchment"
+import {equal, last, isArray, isObject, isString} from "panda-parchment"
+import {read} from "panda-quill"
+import Method from "panda-generics"
+import YAML from "js-yaml"
 
-lookup = (keys, object) ->
+
+_lookup = Method.create()
+Method.define _lookup, isArray, isObject, (keys, object) ->
   current = object
-  for key in keys.split "."
-    break unless current?
+  for key in keys
+    break if !current?
     current = current?[key]
-  current
+  if current then current
+  else throw new Error "invalid key [#{keys.join "."}]"
+
+Method.define _lookup, isString, isObject, (reference, object) ->
+  _lookup (reference.split "."), object
+
+_update = Method.create()
+isAny = (-> true)
+
+Method.define _update, isArray, isAny, isObject,
+  ([keys..., key], value, object) -> (_lookup keys, object)[key] = value
+
+Method.define _update, isString, isAny, isObject, (reference, value, object) ->
+  _update (reference.split "."), value, object
 
 log =
-  info: (args...) -> console.log "tempo:", args...
-  warn: (args...) -> console.warn "tempo:", args...
-  error: (args...) -> console.error "tempo:", args...
+  info: (context, message) -> context.messages.info.push message
+  warn: (context, message) -> context.messages.warn.push message
+  fatal: (context, message) -> context.messages.fatal.push message
 
-constraint = ({name, verify, refresh, success, failure}) ->
-  rtee (args...) ->
-    context = last args
-    context.constraints.push (results = {name})
-    try
-      if verify args...
-        if context.refresh
-          refresh args...
-        results.success = success args...
-      else
-        results.failure = failure args...
-    catch error
-      results.failure = failure args...
-      results.error = error
 
-property = curry ternary constraint
+file = curry rtee (path, context) ->
+  expected = await read resolve context.constraint.path, path
+  actual = await read resolve context.project.path, path
+  if expected != actual
+    context.updates[path] = expected
 
-  name: "package.json"
-
-  verify: (key, value, context) ->
-    equal value, lookup key, context.package
-
-  refresh: (key, value, context) ->
-
-  success: (key, value, context) ->
-    if context.refresh
-      "updated [#{key}] to [#{value}] in package.json"
+serializer = (extension) ->
+  switch extension[1..]
+    when "json"
+      fromString: JSON.parse
+      toString: JSON.stringify
+    when "yaml"
+      fromString: YAML.safeLoad
+      toString: YAML.safeDump
     else
-      "verified [#{key}] == [#{value}] in package.json"
+      throw new Error "unrecognized extension [#{extension}]"
 
-  failure: (key, value, context) ->
-    if context.refresh
-      "error updating [#{key}] to [#{value}] in package.json"
-    else
-      "[#{key}] != [#{value}] in package.json"
+property = curry rtee (path, key, value, context) ->
 
+  {fromString, toString} = serializer extname path
 
-export {property}
+  unless (content = context.updates[path])?
+    content = await read resolve context.project.path, path
+    data = fromString content
+  else
+    data = context.data[path]
+
+  try
+    if value != _lookup key, data
+      _update key, value, data
+      log.info context, "update [#{key}] to [#{value}] in [#{path}]"
+      context.data[path] = data
+      context.updates[path] = toString data
+  catch error
+    log.warn context, error.message
+
+properties = (path, dictionary) ->
+  flow ((property key, value) for key, value of dictionary)
+
+export {file, property, properties}

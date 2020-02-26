@@ -11,11 +11,27 @@ do ->
 
   context =
     refresh: false
-    package: JSON.parse await read resolve "package.json"
-    constraints: []
+    project:
+      path: resolve "."
+    target:
+      path: resolve "test", "files"
+    updates: {}
+    data: {}
+    messages:
+      info: []
+      warn: []
+      fatal: []
 
-  assert (property "name", "tempo", context).constraints[0]?.success?
-  assert (property "scripts.test", "p9k test", context).constraints[1]?.success?
-  assert (property "scripts.fubar", "p9k test", context).constraints[2]?.failure?
-  # assert (property "scripts.test", "p9k test", context)
-  # console.log (property "scripts.foo", "p9k test", context)
+
+  assert (await property "package.json", "name", "tempo", context)
+    ?.updates?["package.json"]?
+
+  assert.equal 1,
+    (await property "package.json", "scripts.test", "p9k test", context)
+    ?.messages?.info?.length
+
+  assert.equal 1,
+    (await property "package.json", "scripts.fubar", "p9k test", context)
+    ?.messages?.warn?.length
+
+  console.log colors.green "  Verify"
