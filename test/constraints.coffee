@@ -3,7 +3,7 @@ import {resolve} from "path"
 import {read} from "panda-quill"
 import colors from "colors/safe"
 
-import {property} from "../src/constraints/combinators"
+import {file, property} from "../src/constraints/combinators"
 
 do ->
 
@@ -13,7 +13,7 @@ do ->
     refresh: false
     project:
       path: resolve "."
-    target:
+    constraint:
       path: resolve "test", "files"
     updates: {}
     data: {}
@@ -33,5 +33,9 @@ do ->
   assert.equal 1,
     (await property "package.json", "scripts.fubar", "p9k test", context)
     ?.messages?.warn?.length
+
+  assert (await file "LICENSE.md", context)
+    ?.updates?["LICENSE.md"]?
+
 
   console.log colors.green "  Verify"
