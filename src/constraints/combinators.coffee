@@ -36,9 +36,9 @@ log =
 file = curry rtee (path, context) ->
   try
     expected = await read resolve context.constraint.path, path
-    actual = await read resolve context.project.path, path
+    actual = await read resolve context.package.path, path
     if expected != actual
-      context.project.updates[path] = expected
+      context.package.updates[path] = expected
   catch error
     log.warn context, error.message
 
@@ -57,18 +57,18 @@ property = curry rtee (path, key, value, context) ->
 
   {fromString, toString} = serializer extname path
 
-  if (cached = context.project.cached[path])?
+  if (cached = context.package.cached[path])?
     {content, data} = cache
   else
-    content = await read resolve context.project.path, path
+    content = await read resolve context.package.path, path
     data = fromString content
-    context.project.cached[path] = {content, data}
+    context.package.cached[path] = {content, data}
 
   try
     if value != _lookup key, data
       _update key, value, data
       log.info context, "update [#{key}] to [#{value}] in [#{path}]"
-      context.project.updates[path] = toString data
+      context.package.updates[path] = toString data
   catch error
     log.warn context, error.message
 

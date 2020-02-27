@@ -77,7 +77,7 @@ rehearse = rule (second strip all (text "rehearse"), ws, subcommands),
     [command, options]
 
 # grammar
-command = second strip all (text "tempo"), ws, (any subcommands, rehearse)
+command = any subcommands, rehearse
 
 parse = grammar command
 
