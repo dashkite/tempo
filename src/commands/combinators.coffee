@@ -9,7 +9,7 @@ constraints = tee (context) ->
   for name in context.constraints
     constraints[name] context
 
-run = tee (context) ->
+update = tee (context) ->
   for action in context.actions
     context.logger.info action
     unless context.options.rehearse
@@ -30,3 +30,6 @@ write = tee (context) ->
 announce = tee (context) ->
   context.logger.info context.command.name
   context.logger.info context.command.options
+
+
+export {shell, constraints, update, write, announce}
