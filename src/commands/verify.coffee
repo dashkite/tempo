@@ -4,8 +4,11 @@ import {chdir as _chdir} from "panda-quill"
 import {squeeze} from "../helpers"
 import {shell, run, write, announce, constraints} from "./combinators"
 
+# TODO quill/chdir should support async fn
 chdir = curry (f, pkg, context) ->
-  _chdir pkg.path, -> f pkg, context
+  cwd = process.cwd()
+  process.chdir pkg.path
+  f pkg, context
 
 scope = curry (name, _, context) ->
   !context.options.scope? || context.options.scope == name
@@ -32,6 +35,7 @@ verify = squeeze flow [
     peek write
 
   ]
+
 ]
 
 export default verify

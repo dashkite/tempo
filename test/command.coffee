@@ -24,7 +24,7 @@ do ->
 
       [command, options] = parse "rehearse verify"
 
-      await commands[command]
+      [pkg, context] = await commands[command]
         path: "."
         constraints: [ "builder" ]
         actions: []
@@ -35,4 +35,7 @@ do ->
 
       ,
         {command, options, logger},
+
+      assert.deepEqual pkg.actions,
+        [ 'npm audit', 'npm outdated', 'npm ci', 'npm test' ]
   ]
