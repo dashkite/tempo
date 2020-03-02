@@ -1,28 +1,38 @@
 import {curry, rtee, flow} from "panda-garden"
+import {peek, test} from "@dashkite/katana"
+import {chdir as _chdir} from "panda-quill"
 import constraints from "../constraints"
+import {squeeze} from "../helpers"
 import {shell, run, write, announce} from "./combinators"
 
-scope = curry rtee (name, f, context) ->
-  if !context.options.scope? || context.options.scope == name
-    f context
+chdir = curry (f, pkg, context) ->
+  _chdir pkg.path, -> f pkg, context
 
-export default flow [
+scope = curry (name, _, context) ->
+  !context.options.scope? || context.options.scope == name
 
-  announce
+verify = squeeze flow [
 
-  scope "dependencies", flow [
-    shell "npm audit"
-    shell "npm outdated"
+  peek chdir squeeze flow [
+
+    peek announce
+
+    test (scope "dependencies"), flow [
+      peek shell "npm audit"
+      peek shell "npm outdated"
+    ]
+
+    test (scope "build"), flow [
+      peek shell "npm ci"
+      peek shell "npm test"
+    ]
+
+    test (scope "constraints"), peek constraints
+
+    peek run
+    peek write
+
   ]
-
-  scope "build", flow [
-    shell "npm ci"
-    shell "npm test"
-  ]
-
-  scope "constraints", constraints
-
-  run
-  write
-
 ]
+
+export default verify

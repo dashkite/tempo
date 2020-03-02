@@ -1,22 +1,9 @@
-import {resolve} from "path"
-import {flow} from "panda-garden"
-import {peek, replace} from "@dashkite/katana"
-import YAML from "js-yaml"
-import {read} from "panda-quill"
+import {tee} from "panda-garden"
 
-spread = (args...) -> args
+squeeze = (f) -> (args...) -> f args
 
-map = (stack) ->
+map = tee (f, [iterable, rest...]) ->
+  for item from iterable
+    await f [ item, rest... ]
 
-run = flow [
-  spread
-  push -> read resolve "."
-  replace YAML.safeLoad
-  map flow [
-    peek initialize
-    peek clone
-    peek command
-  ]
-]
-
-export {run}
+export {squeeze, map}
