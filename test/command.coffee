@@ -18,16 +18,21 @@ logger = winston.createLogger
 
 do ->
 
-
   print await test "command", [
 
     test "verify", ->
 
-      [command, options] = parse "rehearse verify constraints"
+      [command, options] = parse "rehearse verify"
 
       await commands[command]
         path: "."
-        constraints: [ "test" ]
+        constraints: [ "builder" ]
+        actions: []
+        updates: {}
+        cache:
+          content: {}
+          data: {}
+
       ,
         {command, options, logger},
   ]

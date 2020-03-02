@@ -1,9 +1,8 @@
 import {curry, rtee, flow} from "panda-garden"
 import {peek, test} from "@dashkite/katana"
 import {chdir as _chdir} from "panda-quill"
-import constraints from "../constraints"
 import {squeeze} from "../helpers"
-import {shell, run, write, announce} from "./combinators"
+import {shell, run, write, announce, constraints} from "./combinators"
 
 chdir = curry (f, pkg, context) ->
   _chdir pkg.path, -> f pkg, context

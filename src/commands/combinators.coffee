@@ -1,15 +1,16 @@
 import {shell as _shell, pipe} from "./helpers"
 import {curry, tee, rtee, flow} from "panda-garden"
 import {write as _write} from "panda-quill"
+import _constraints from "../constraints"
 
-shell = curry rtee (command, context) ->
-  context.actions.push command
+shell = curry (command, pkg) ->
+  pkg.actions.push command
 
-constraints = tee (pkg, context) ->
+constraints = (pkg, context) ->
   for name in pkg.constraints
-    constraints[name] context
+    _constraints[name] pkg, context
 
-update = tee (pkg, context) ->
+run = (pkg, context) ->
   for action in pkg.actions
     context.logger.info action
     unless context.options.rehearse
@@ -18,7 +19,7 @@ update = tee (pkg, context) ->
       catch error
         context.logger.error error
 
-write = tee (pkg, context) ->
+write = (pkg, context) ->
   for path, content of pkg.updates
     context.logger.info "update [#{path}]"
     unless context.options.rehearse
@@ -32,4 +33,4 @@ announce = (_, context) ->
   context.logger.info "options: %s", context.options
 
 
-export {shell, constraints, update, write, announce}
+export {shell, constraints, run, write, announce}
