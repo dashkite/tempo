@@ -26,13 +26,13 @@ do ->
     await test "verify", ->
       [pkg, context] = await scenario "verify"
       assert.deepEqual pkg.actions,
-        [ 'npm audit', 'npm outdated', 'npm ci', 'npm test' ]
+        [ "npm audit", "npm outdated", "npm ci", "npm test" ]
       assert pkg.updates["LICENSE.md"]?
 
     await test "update", ->
       [pkg, context] = await scenario "update"
       assert.deepEqual pkg.actions,
-        [ 'npm update' ]
+        [ "npm update" ]
 
     await test "refresh", ->
       [pkg, context] = await scenario "refresh"
@@ -40,9 +40,13 @@ do ->
 
     await test "version", ->
       [pkg, context] = await scenario "version"
+      assert.deepEqual pkg.actions,
+        [ "npm version patch", "git push --tags" ]
 
     await test "publish", ->
       [pkg, context] = await scenario "publish"
+      assert.deepEqual pkg.actions,
+        [ "npm publish --access public" ]
 
     await test "packages"
 
