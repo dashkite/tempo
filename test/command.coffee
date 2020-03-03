@@ -38,5 +38,14 @@ do ->
       [pkg, context] = await scenario "refresh"
       assert pkg.updates["LICENSE.md"]?
 
+    await test "version", ->
+      [pkg, context] = await scenario "version"
+
+    await test "publish", ->
+      [pkg, context] = await scenario "publish"
+
+    await test "packages"
+
+
 
   ]

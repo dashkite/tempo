@@ -36,10 +36,10 @@ do ->
 
     pass "refresh", command: "refresh"
 
-    pass "bump", command: "bump"
+    pass "version", command: "version"
 
-    pass "bump major",
-      command: "bump"
+    pass "version major",
+      command: "version"
       options: major: true
 
     fail "notacommand"

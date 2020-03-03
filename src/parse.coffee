@@ -53,7 +53,7 @@ refresh = all text "refresh"
 # bump command
 major = text "major"
 minor = text "minor"
-bump = compact all (text "bump"),
+version = compact all (text "version"),
   (optional first strip all ws, (flag any major, minor))
 
 # publish command
@@ -67,7 +67,7 @@ diff = tag "subcommand", text "diff"
 packages = strip all (text "packages"), ws, (any list, add, remove, diff)
 
 # all the subcommands
-subcommands = (any verify, update, refresh, bump, publish, packages)
+subcommands = (any verify, update, refresh, version, publish, packages)
 
 # rehearse command
 rehearse = rule (second strip all (text "rehearse"), ws, subcommands),
