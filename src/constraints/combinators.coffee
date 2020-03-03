@@ -32,15 +32,16 @@ log =
   warn: (context, message) -> context.messages.warn.push message
   fatal: (context, message) -> context.messages.fatal.push message
 
+constraintsPath = resolve __dirname, "..", "..", "constraints"
 
-file = curry rtee (path, context) ->
+file = curry (path, name, pkg, context) ->
   try
-    expected = await read resolve context.constraint.path, path
-    actual = await read resolve context.package.path, path
+    expected = await read resolve constraintsPath, name, path
+    actual = await read resolve path
     if expected != actual
-      context.package.updates[path] = expected
+      pkg.updates[path] = expected
   catch error
-    log.warn context, error.message
+    context.logger.warn error
 
 serializer = (extension) ->
   switch extension[1..]

@@ -25,7 +25,7 @@ do ->
       [command, options] = parse "rehearse verify"
 
       [pkg, context] = await commands[command]
-        path: "."
+        path: "./test/files"
         constraints: [ "builder" ]
         actions: []
         updates: {}
@@ -38,4 +38,7 @@ do ->
 
       assert.deepEqual pkg.actions,
         [ 'npm audit', 'npm outdated', 'npm ci', 'npm test' ]
+
+      assert pkg.updates["LICENSE.md"]?
+
   ]

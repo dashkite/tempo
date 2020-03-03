@@ -6,9 +6,10 @@ import _constraints from "../constraints"
 shell = curry (command, pkg) ->
   pkg.actions.push command
 
+# TODO perhaps we should just compose the constraints into a single flow
 constraints = (pkg, context) ->
   for name in pkg.constraints
-    _constraints[name] pkg, context
+    await _constraints[name] name, pkg, context
 
 run = (pkg, context) ->
   for action in pkg.actions
