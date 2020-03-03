@@ -1,44 +1,42 @@
 import assert from "assert"
+import util from "util"
 import {print, test, success} from "amen"
+import colors from "colors/safe"
 
-import winston from "winston"
 import {parse} from "../src/parse"
-import {run} from "../src/helpers"
+import {Context, Package} from "../src/helpers"
 import commands from "../src/commands"
 
-{combine, label, timestamp, colorize, printf, splat, errors} = winston.format
-logger = winston.createLogger
-  transports: [ new winston.transports.Console() ]
-  format: combine (label label: "tempo"),
-    timestamp(),
-    splat(),
-    (errors stack: true)
-    (colorize all: true),
-    printf ({level, message}) -> "#{level} - #{message}"
+logger =
+  info: (message, args...) ->
+    console.info colors.green util.format message, args...
+
+run = (pkg, context) -> commands[context.command] pkg, context
+
+scenario = (_command) ->
+  [command, options] = parse "rehearse #{_command}"
+  pkg = Package.create path: "./test/files", constraints: [ "builder" ]
+  context = Context.create {command, options, logger}
+  run pkg, context
 
 do ->
 
   print await test "command", [
 
-    test "verify", ->
-
-      [command, options] = parse "rehearse verify"
-
-      [pkg, context] = await commands[command]
-        path: "./test/files"
-        constraints: [ "builder" ]
-        actions: []
-        updates: {}
-        cache:
-          content: {}
-          data: {}
-
-      ,
-        {command, options, logger},
-
+    await test "verify", ->
+      [pkg, context] = await scenario "verify"
       assert.deepEqual pkg.actions,
         [ 'npm audit', 'npm outdated', 'npm ci', 'npm test' ]
-
       assert pkg.updates["LICENSE.md"]?
+
+    await test "update", ->
+      [pkg, context] = await scenario "update"
+      assert.deepEqual pkg.actions,
+        [ 'npm update' ]
+
+    await test "refresh", ->
+      [pkg, context] = await scenario "refresh"
+      assert pkg.updates["LICENSE.md"]?
+
 
   ]

@@ -1,14 +1,7 @@
 import {curry, rtee, flow} from "panda-garden"
 import {peek, test} from "@dashkite/katana"
-import {chdir as _chdir} from "panda-quill"
 import {squeeze} from "../helpers"
-import {shell, run, write, announce, constraints} from "./combinators"
-
-# TODO quill/chdir should support async fn
-chdir = curry (f, pkg, context) ->
-  cwd = process.cwd()
-  process.chdir pkg.path
-  f pkg, context
+import {chdir, shell, run, write, announce, constraints} from "./combinators"
 
 scope = curry (name, _, context) ->
   !context.options.scope? || context.options.scope == name
@@ -30,9 +23,6 @@ verify = squeeze flow [
     ]
 
     test (scope "constraints"), peek constraints
-
-    peek run
-    peek write
 
   ]
 
