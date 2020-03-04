@@ -1,11 +1,11 @@
 import {curry, rtee, flow} from "panda-garden"
 import {peek, test} from "@dashkite/katana"
-import {squeeze} from "../helpers"
+import {stack} from "../helpers"
 import {chdir, shell, run, write, announce, constraints} from "./combinators"
 
-publish = squeeze flow [
+publish = stack flow [
 
-  peek chdir squeeze flow [
+  peek chdir stack flow [
 
     peek announce
     peek shell "npm publish --access public"

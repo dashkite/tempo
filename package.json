@@ -27,16 +27,15 @@
   "homepage": "https://github.com/dashkite/tempo#readme",
   "dependencies": {
     "@dashkite/katana": "file:../katana",
+    "chalk": "^3.0.0",
     "js-yaml": "^3.13.1",
     "panda-garden": "^5.0.0",
     "panda-generics": "^6.0.2",
     "panda-grammar": "^2.0.0",
-    "panda-parchment": "^6.0.3",
-    "winston": "^3.2.1"
+    "panda-parchment": "^6.0.3"
   },
   "devDependencies": {
     "amen": "^3.0.0",
-    "colors": "^1.4.0",
     "panda-9000": "^5.0.2",
     "panda-builder": "^4.0.13"
   }

@@ -1,44 +1,51 @@
-import {shell as _shell, pipe} from "./helpers"
 import {curry, tee, rtee, flow} from "panda-garden"
-import {chdir as _chdir, write as _write} from "panda-quill"
+import {write as _write} from "panda-quill"
 import _constraints from "../constraints"
+import log from "../log"
 
-# TODO quill/chdir should support async fn
-chdir = curry (f, pkg, context) ->
-  cwd = process.cwd()
-  process.chdir pkg.path
-  await f pkg, context
-  process.chdir cwd
+_shell = (pkg, action) ->
+
+  [program, args...] = w action
+  path = resolve process.cwd(), pkg.path
+  child = spawn program, args, cwd: path
+
+  output = ""
+  child.stdout.on "data", (data) ->
+    log.info data
+    result += data
+  child.stderr.on "data", (data) -> log.error pkg, data
+  child.on "error", (error) -> reject error
+
+  child.on "close", (status) ->
+    if status == 0
+      resolve output
+    else
+      reject new Error "child process exited with non-zero status: #{status}"
 
 shell = curry (command, pkg) ->
   pkg.actions.push command
 
 # TODO perhaps we should just compose the constraints into a single flow
-constraints = (pkg, context) ->
+constraints = (pkg, options) ->
   for name in pkg.constraints
-    await _constraints[name] name, pkg, context
+    await _constraints[name] name, pkg
 
-run = (pkg, context) ->
+run = (pkg, options) ->
   for action in pkg.actions
-    context.logger.info "run [#{action}]"
-    unless context.options.rehearse
+    log.info "run [#{action}]"
+    unless options.rehearse
       try
-        pipe (_shell action), context.logger
+        _shell pkg, action
       catch error
-        context.logger.error error
+        log.error pkg, error
 
-write = (pkg, context) ->
+write = (pkg, options) ->
   for path, content of pkg.updates
-    context.logger.info "update [#{path}]"
-    unless context.options.rehearse
+    log.info pkg, "update [#{path}]"
+    unless options.rehearse
       try
         await _write (resolve pkg.path, path), content
       catch error
-        context.logger.error error
+        log.error pkg, error
 
-announce = (_, context) ->
-  context.logger.info "command: %s", context.command
-  context.logger.info "options: %s", context.options
-
-
-export {chdir, shell, constraints, run, write, announce}
+export {shell, constraints, run, write}
