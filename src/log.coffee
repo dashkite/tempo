@@ -2,11 +2,11 @@ import {createWriteStream} from "fs"
 import {resolve} from "path"
 import util from "util"
 import chalk from "chalk"
-import {curry, flow} from "panda-garden"
+import {wrap, curry, flow} from "panda-garden"
 import Method from "panda-generics"
 import {isType} from "panda-parchment"
 import {write} from "panda-quill"
-import {stack, push, peek, replace, call} from "@dashkite/katana"
+import {stack, push, peek, replace, call, log as _log} from "@dashkite/katana"
 import Package from "./package"
 
 format = Method.create
@@ -21,7 +21,7 @@ append = curry (stream, content) -> stream.write content + "\n"
 log =
 
   error: stack flow [
-    push "error"
+    push wrap "error"
     call format
     peek append logfile
     replace chalk.red
@@ -29,7 +29,7 @@ log =
   ]
 
   warn: stack flow [
-    push "warn"
+    push wrap "warn"
     call format
     peek append logfile
     replace chalk.yellow
@@ -37,14 +37,14 @@ log =
   ]
 
   info: stack flow [
-    push "info"
+    push wrap "info"
     call format
     replace chalk.green
     peek append process.stdout
   ]
 
   debug: stack flow [
-    push "debug"
+    push wrap "debug"
     call format
     peek append logfile
   ]
@@ -55,10 +55,10 @@ isRest = (args...) -> true
 
 isPackage = isType Package
 
-format._.define isLevel, isRest, ->
+format._.define isLevel, isRest, (level, args...) ->
   "tempo [#{level}] #{format args...}"
 
-format._.define isLevel, isPackage, isRest, (level, pkg, args) ->
+format._.define isLevel, isPackage, isRest, (level, pkg, args...) ->
   "tempo [#{level}] [#{pkg.path}] #{format args...}"
 
 export default log

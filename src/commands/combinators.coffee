@@ -32,7 +32,7 @@ constraints = (pkg, options) ->
 
 run = (pkg, options) ->
   for [ action, handler ] in pkg.actions
-    log.info "run [#{action}]"
+    log.info pkg, "run [#{action}]"
     unless options.rehearse
       try
         result = _shell pkg, action
@@ -49,4 +49,8 @@ write = (pkg, options) ->
       catch error
         log.error pkg, error
 
-export {shell, constraints, run, write}
+report = (pkg, options) ->
+  run pkg, rehearse: true
+  write pkg, rehearse: true
+
+export {shell, constraints, run, write, report}

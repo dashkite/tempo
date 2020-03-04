@@ -1,6 +1,6 @@
 import {unary, curry, rtee, flow} from "panda-garden"
 import {stack, peek, test} from "@dashkite/katana"
-import {shell, constraints} from "./combinators"
+import {shell, constraints, report} from "./combinators"
 
 scope = curry (name, pkg, {scope}) -> !scope? || scope == name
 
@@ -31,6 +31,8 @@ verify = stack flow [
   ]
 
   test (scope "constraints"), peek constraints
+
+  peek report
 
 ]
 
