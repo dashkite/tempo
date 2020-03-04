@@ -34,10 +34,10 @@ log =
 
 constraintsPath = resolve __dirname, "..", "..", "constraints"
 
-file = curry (path, name, pkg, context) ->
+file = curry (path, name, pkg) ->
   try
     expected = await read resolve constraintsPath, name, path
-    actual = await read resolve path
+    actual = await read resolve pkg.path, path
     if expected != actual
       pkg.updates[path] = expected
   catch error

@@ -1,6 +1,8 @@
 import assert from "assert"
 import util from "util"
 import {print, test, success} from "amen"
+import {collect, map} from "panda-river"
+import {first} from "panda-parchment"
 import log from "../src/log"
 import {parse} from "../src/parse"
 import Package from "../src/package"
@@ -19,8 +21,8 @@ do ->
 
     await test "verify", ->
       [pkg, context] = await scenario "verify"
-      assert.deepEqual pkg.actions,
-        [ "npm audit", "npm outdated", "npm ci", "npm test" ]
+      assert.deepEqual (collect map first, pkg.actions),
+        [ "npm audit --json", "npm outdated --json", "npm ci", "npm test" ]
       assert pkg.updates["LICENSE.md"]?
 
     # await test "update", ->

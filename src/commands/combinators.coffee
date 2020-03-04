@@ -22,8 +22,8 @@ _shell = (pkg, action) ->
     else
       reject new Error "child process exited with non-zero status: #{status}"
 
-shell = curry (command, pkg) ->
-  pkg.actions.push command
+shell = (action, handler) ->
+  (pkg) -> pkg.actions.push [ action, handler ]
 
 # TODO perhaps we should just compose the constraints into a single flow
 constraints = (pkg, options) ->
@@ -31,11 +31,12 @@ constraints = (pkg, options) ->
     await _constraints[name] name, pkg
 
 run = (pkg, options) ->
-  for action in pkg.actions
+  for [ action, handler ] in pkg.actions
     log.info "run [#{action}]"
     unless options.rehearse
       try
-        _shell pkg, action
+        result = _shell pkg, action
+        handler? result, pkg
       catch error
         log.error pkg, error
 
