@@ -1,10 +1,13 @@
 {
   "name": "@dashkite/tempo",
-  "version": "0.0.1",
+  "version": "0.0.0",
   "description": "Polyrepo project and package management",
-  "main": "build/npm/src/index.js",
-  "directories": {
-    "test": "test"
+  "main": "build/src/index.js",
+  "files": [
+    "./build"
+  ],
+  "bin": {
+    "tempo": "./build/src/bin/tempo"
   },
   "scripts": {
     "test": "p9k test"

@@ -81,4 +81,4 @@ command = any subcommands, rehearse
 
 parse = grammar command
 
-export {parse}
+export default parse

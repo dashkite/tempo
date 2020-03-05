@@ -25,13 +25,15 @@ verify = stack flow [
   ]
 
   test (scope "build"), flow [
-
     peek shell "npm ci"
     peek shell "npm test"
   ]
 
   test (scope "constraints"), peek constraints
 
+  # TODO how to report on the results of the audit/outdated?
+  # TODO does reporting even belong here? or is that up to the caller?
+  # TODO should we produce a return value? success/failure?
   peek report
 
 ]
