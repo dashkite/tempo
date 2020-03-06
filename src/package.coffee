@@ -7,6 +7,7 @@ class Package
       actions: []
       updates: {}
       results: {}
+      errors: []
       cache:
         content: {}
         data: {}

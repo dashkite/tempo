@@ -14,7 +14,7 @@ format = Method.create
   default: util.format
 
 logfile = createWriteStream resolve "./tempo.log"
-# process.on "exit", -> logfile.end()
+process.on "exit", -> logfile.end()
 
 append = curry (stream, content) -> stream.write content + "\n"
 

@@ -19,14 +19,15 @@ _shell = (pkg, action) ->
       text = utf8 data
       log.debug pkg, "[%s] %s", action, text
       output += text
-    child.stderr.on "data", (data) -> log.debug pkg, utf8 data
+    child.stderr.on "data", (data) ->
+      log.debug pkg, utf8 data
     child.on "error", (error) -> reject error
 
     child.on "close", (status) ->
       if status == 0
         resolve output
       else
-        reject new Error "child process exited with non-zero status: #{status}"
+        reject new Error "[#{action}] exited with non-zero status"
 
 shell = (action, handler = identity) ->
   (pkg) -> pkg.actions.push [ action, handler ]
@@ -43,7 +44,10 @@ run = (pkg, options) ->
       try
         handler (await _shell pkg, action), pkg
       catch error
-        log.error pkg, error
+        pkg.result = false
+        pkg.errors.push error.message
+        log.debug pkg, error
+        log.error pkg, error.message
 
 write = (pkg, options) ->
   for path, content of pkg.updates
@@ -54,5 +58,4 @@ write = (pkg, options) ->
       catch error
         log.error pkg, error
 
-report = ->
-export {shell, constraints, run, write, report}
+export {shell, constraints, run, write}
