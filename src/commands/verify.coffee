@@ -1,6 +1,6 @@
 import {unary, curry, rtee, flow} from "panda-garden"
-import {stack, peek, test} from "@dashkite/katana"
-import {shell, constraints, report} from "./combinators"
+import {stack, peek, test, log} from "@dashkite/katana"
+import {shell, constraints, run, report} from "./combinators"
 
 scope = curry (name, pkg, {scope}) -> !scope? || scope == name
 
@@ -13,7 +13,7 @@ verify = stack flow [
 
   test (scope "dependencies"), flow [
 
-    peek shell "npm audit --json", flow [
+    peek shell "npm audit --json", stack flow [
       peek json
       peek results "audit"
     ]
@@ -25,11 +25,13 @@ verify = stack flow [
   ]
 
   test (scope "build"), flow [
-    peek shell "npm ci"
-    peek shell "npm test"
+    peek shell "npm ci --colors false"
+    peek shell "npm test --colors false"
   ]
+  #
+  # test (scope "constraints"), peek constraints
 
-  test (scope "constraints"), peek constraints
+  peek run
 
   # TODO how to report on the results of the audit/outdated?
   # TODO does reporting even belong here? or is that up to the caller?

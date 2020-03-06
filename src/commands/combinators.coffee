@@ -1,28 +1,34 @@
-import {curry, tee, rtee, flow} from "panda-garden"
+import {spawn} from "child_process"
+import Path from "path"
+import {identity, curry, tee, rtee, flow} from "panda-garden"
+import {promise, w} from "panda-parchment"
 import {write as _write} from "panda-quill"
 import _constraints from "../constraints"
 import log from "../log"
 
+utf8 = (data) -> data.toString "utf8"
 _shell = (pkg, action) ->
+  promise (resolve, reject) ->
 
-  [program, args...] = w action
-  path = resolve process.cwd(), pkg.path
-  child = spawn program, args, cwd: path
+    [program, args...] = w action
+    path = Path.resolve process.cwd(), pkg.path
+    child = spawn program, args, cwd: path
 
-  output = ""
-  child.stdout.on "data", (data) ->
-    log.info data
-    result += data
-  child.stderr.on "data", (data) -> log.error pkg, data
-  child.on "error", (error) -> reject error
+    output = ""
+    child.stdout.on "data", (data) ->
+      text = utf8 data
+      log.debug pkg, "[%s] %s", action, text
+      output += text
+    child.stderr.on "data", (data) -> log.debug pkg, utf8 data
+    child.on "error", (error) -> reject error
 
-  child.on "close", (status) ->
-    if status == 0
-      resolve output
-    else
-      reject new Error "child process exited with non-zero status: #{status}"
+    child.on "close", (status) ->
+      if status == 0
+        resolve output
+      else
+        reject new Error "child process exited with non-zero status: #{status}"
 
-shell = (action, handler) ->
+shell = (action, handler = identity) ->
   (pkg) -> pkg.actions.push [ action, handler ]
 
 # TODO perhaps we should just compose the constraints into a single flow
@@ -35,8 +41,7 @@ run = (pkg, options) ->
     log.info pkg, "run [#{action}]"
     unless options.rehearse
       try
-        result = _shell pkg, action
-        handler? result, pkg
+        handler (await _shell pkg, action), pkg
       catch error
         log.error pkg, error
 
@@ -45,12 +50,9 @@ write = (pkg, options) ->
     log.info pkg, "update [#{path}]"
     unless options.rehearse
       try
-        await _write (resolve pkg.path, path), content
+        await _write (Path.resolve pkg.path, path), content
       catch error
         log.error pkg, error
 
-report = (pkg, options) ->
-  run pkg, rehearse: true
-  write pkg, rehearse: true
-
+report = ->
 export {shell, constraints, run, write, report}
