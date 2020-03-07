@@ -56,7 +56,8 @@ verify = stack flow [
     peek constraints
     peek (pkg) ->
       if (keys pkg.updates).length != 0
-        pkg.errors.push "failing constraint(s)"
+        for path, _ of pkg.updates
+          pkg.errors.push "[#{path}] needs updating"
   ]
 
   peek report
