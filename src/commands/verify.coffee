@@ -1,25 +1,10 @@
-import {unary, curry, rtee, flow} from "panda-garden"
-import {property, keys} from "panda-parchment"
+import {curry, flow} from "panda-garden"
+import {property} from "panda-parchment"
 import {stack, peek, replace, test} from "@dashkite/katana"
-import {shell, constraints, run} from "./combinators"
+import {shell, json, constraints, run, report} from "./combinators"
 import log from "../log"
 
 scope = curry (name, pkg, {scope}) -> !scope? || scope == name
-
-# we need this because JSON.parse is a binary fn
-json = unary JSON.parse
-
-results = curry (key, result, pkg) -> pkg.results[key] = result
-
-report = (pkg) ->
-  {errors} = pkg
-  if (pkg.result ?= (errors.length == 0))
-    log.info pkg, "** package verified **"
-  else
-    log.warn pkg, "results:"
-    for error in errors
-      log.warn pkg, "- #{error}"
-    log.warn pkg, "see tempo.log for details"
 
 verify = stack flow [
 

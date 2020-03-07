@@ -1,6 +1,6 @@
 import {spawn} from "child_process"
 import Path from "path"
-import {identity, curry, tee, rtee, flow} from "panda-garden"
+import {identity, unary, curry, tee, rtee, flow} from "panda-garden"
 import {promise, w} from "panda-parchment"
 import {write as _write} from "panda-quill"
 import _constraints from "../constraints"
@@ -58,4 +58,15 @@ write = (pkg, options) ->
       catch error
         log.error pkg, error
 
-export {shell, constraints, run, write}
+json = (text) -> try JSON.parse text
+
+results = curry (key, result, pkg) -> pkg.results[key] = result
+
+report = (pkg) ->
+  {errors} = pkg
+  if !(pkg.result ?= (errors.length == 0))
+    for error in errors
+      log.warn pkg, "- #{error}"
+    log.warn pkg, "see tempo.log for details"
+
+export {shell, constraints, run, write, json, results, report}
