@@ -14,20 +14,17 @@ _shell = (pkg, action) ->
     path = Path.resolve process.cwd(), pkg.path
     child = spawn program, args, cwd: path
 
-    output = ""
+    stdout = stderr = ""
     child.stdout.on "data", (data) ->
       text = utf8 data
-      log.debug pkg, "[%s] %s", action, text
-      output += text
+      log.debug pkg, "[%s] [stdout] %s", action, text
+      stdout += text
     child.stderr.on "data", (data) ->
-      log.debug pkg, utf8 data
+      text = utf8 data
+      log.debug pkg, "[%s] [stderr] %s", action, text
+      stderr += text
     child.on "error", (error) -> reject error
-
-    child.on "close", (status) ->
-      if status == 0
-        resolve output
-      else
-        reject new Error "[#{action}] exited with non-zero status"
+    child.on "close", (status) -> resolve {action, status, stdout, stderr}
 
 shell = (action, handler = identity) ->
   (pkg) -> pkg.actions.push [ action, handler ]
@@ -42,10 +39,13 @@ run = (pkg, options) ->
     log.info pkg, "run [#{action}]"
     unless options.rehearse
       try
-        handler (await _shell pkg, action), pkg
+        pkg.results[action] = result = await _shell pkg, action
+        if result.status != 0
+          pkg.result = false
+          log.warn pkg, "[#{action}] exited with a non-zero status"
+        handler result, pkg
       catch error
         pkg.result = false
-        pkg.errors.push error.message
         log.debug pkg, error
         log.error pkg, error.message
 

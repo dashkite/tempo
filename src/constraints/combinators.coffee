@@ -41,7 +41,7 @@ file = curry (path, name, pkg) ->
     if expected != actual
       pkg.updates[path] = expected
   catch error
-    context.logger.warn error
+    log.warn error
 
 serializer = (extension) ->
   switch extension[1..]

@@ -1,5 +1,5 @@
 import {unary, curry, rtee, flow} from "panda-garden"
-import {keys} from "panda-parchment"
+import {property, keys} from "panda-parchment"
 import {stack, peek, replace, test} from "@dashkite/katana"
 import {shell, constraints, run} from "./combinators"
 import log from "../log"
@@ -14,29 +14,27 @@ results = curry (key, result, pkg) -> pkg.results[key] = result
 report = (pkg) ->
   {errors} = pkg
   if (pkg.result ?= (errors.length == 0))
-    log.info pkg, "results: package up-to-date, no issues found"
+    log.info pkg, "** package verified **"
   else
-    log.info pkg, "results:"
+    log.warn pkg, "results:"
     for error in errors
-      log.info pkg, "- #{error}"
-    log.info pkg, "see tempo.log for details"
+      log.warn pkg, "- #{error}"
+    log.warn pkg, "see tempo.log for details"
 
 verify = stack flow [
 
   test (scope "dependencies"), flow [
 
     peek shell "npm audit --json", stack flow [
+      replace property "stdout"
       replace json
       peek (result, pkg) ->
         if result.actions.length > 0
           pkg.errors.push "audit failed"
     ]
 
-    # TODO this exist w non-zero so we never see the report
-    #      same is probably true for audit
-    #      so we need a way to proceed even on non-zero
-    #      maybe put status, stdout, stderr on the stack?
     peek shell "npm outdated --json", stack flow [
+      replace property "stdout"
       replace json
       peek (result, pkg) ->
         if (keys result).length != 0
@@ -46,12 +44,20 @@ verify = stack flow [
 
   test (scope "build"), flow [
     peek shell "npm ci --colors false"
-    peek shell "npm test --colors false"
+    peek shell "npm test --colors false", stack flow [
+      peek ({status}, pkg) ->
+        pkg.errors.push "failing test(s)" if status != 0
+    ]
   ]
 
-  test (scope "constraints"), peek constraints
-
   peek run
+
+  test (scope "constraints"), flow [
+    peek constraints
+    peek (pkg) ->
+      if (keys pkg.updates).length != 0
+        pkg.errors.push "failing constraint(s)"
+  ]
 
   peek report
 
