@@ -35,7 +35,8 @@ constraints = (pkg, options) ->
     await _constraints[name] name, pkg
 
 run = (pkg, options) ->
-  for [ action, handler ] in pkg.actions
+  while pkg.actions.length > 0
+    [ action, handler ] = pkg.actions.shift()
     log.info pkg, "run [#{action}]"
     unless options.rehearse
       try

@@ -2,6 +2,7 @@ import {curry, flow} from "panda-garden"
 import {property, isDefined} from "panda-parchment"
 import {stack, peek, replace, test} from "@dashkite/katana"
 import {shell, json, run, report} from "./combinators"
+import verify from "./verify"
 import log from "../log"
 
 wildstyle = curry (_, options) -> options.wildstyle?
@@ -11,7 +12,6 @@ update = stack flow [
 
   peek shell "npm update --json", stack flow [
     replace property "stdout"
-    # TODO sometimes this is '' which gives us an error
     replace json
     test isDefined, peek ({updated}, pkg) ->
       for {name, version} in updated
@@ -22,7 +22,9 @@ update = stack flow [
 
   peek run
 
-  peek report
+  # don't need to run report since we run it in verify
+  # TODO perhaps have verify take report: false as an option?
+  peek verify
 
 ]
 

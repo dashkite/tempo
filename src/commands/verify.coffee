@@ -1,4 +1,4 @@
-import {curry, flow} from "panda-garden"
+import {binary, curry, flow} from "panda-garden"
 import {property} from "panda-parchment"
 import {stack, peek, replace, test} from "@dashkite/katana"
 import {shell, json, constraints, run, report} from "./combinators"
@@ -6,7 +6,8 @@ import log from "../log"
 
 scope = curry (name, pkg, {scope}) -> !scope? || scope == name
 
-verify = stack flow [
+# TODO stack should preserve arity ala curry
+verify = binary stack flow [
 
   test (scope "dependencies"), flow [
 
