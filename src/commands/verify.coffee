@@ -37,8 +37,8 @@ verify = stack flow [
       replace property "stdout"
       replace json
       peek (result, pkg) ->
-        if (keys result).length != 0
-          pkg.errors.push "update dependencies"
+        for name, version of result
+          pkg.errors.push "update [#{name}] to [#{version.wanted}]"
     ]
   ]
 
@@ -55,9 +55,8 @@ verify = stack flow [
   test (scope "constraints"), flow [
     peek constraints
     peek (pkg) ->
-      if (keys pkg.updates).length != 0
-        for path, _ of pkg.updates
-          pkg.errors.push "[#{path}] needs updating"
+      for path, _ of pkg.updates
+        pkg.errors.push "[#{path}] needs updating"
   ]
 
   peek report
