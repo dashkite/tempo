@@ -30,12 +30,16 @@ Method.define _update, isString, isAny, isObject, (reference, value, object) ->
 
 constraintsPath = resolve __dirname, "..", "..", "constraints"
 
-file = curry (path, updates, pkg) ->
+# TODO this message gets logged twice for update/refresh
+file = curry (path, name, pkg, options) ->
   log.info pkg, "checking [#{path}]"
   try
     expected = await read resolve constraintsPath, name, path
     actual = await read resolve pkg.path, path
-    updates[path] = expected if expected != actual
+    if expected != actual
+      [path]: expected
+    else
+      {}
   catch error
     log.debug error
 

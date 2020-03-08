@@ -1,9 +1,9 @@
 import {spawn} from "child_process"
 import Path from "path"
-import {identity, unary, curry, tee, rtee, flow} from "panda-garden"
-import {promise, w} from "panda-parchment"
+import {identity, unary, binary, curry, tee, rtee, flow} from "panda-garden"
+import {promise, w, merge} from "panda-parchment"
 import {write as _write} from "panda-quill"
-import {stack, test, pop, peek} from "@dashkite/katana"
+import {stack, test, push, pop, peek, restore} from "@dashkite/katana"
 import _constraints from "../constraints"
 import log from "../log"
 
@@ -27,27 +27,23 @@ _shell = (pkg, action) ->
     child.on "error", (error) -> reject error
     child.on "close", (status) -> resolve {action, status, stdout, stderr}
 
-shell = (action, handler = identity) ->
-  (pkg, options) ->
-    log.info pkg, "run [#{action}]"
-    unless options.rehearse
-      try
-        result = await _shell pkg, action
-        if result.status != 0
-          pkg.result = false
-          log.debug pkg, "[#{action}] exited with a non-zero status"
-        handler result, pkg, options
-      catch error
-        pkg.result = false
-        log.debug pkg, error
-        log.error pkg, error.message
+shell = curry (action, pkg, options) ->
+  log.info pkg, "run [#{action}]"
+  unless options.rehearse
+    result = await _shell pkg, action
+    if result.status != 0
+      log.debug pkg, "[#{action}] exited with a non-zero status"
+    result
 
-# TODO perhaps we should just compose the constraints into a single flow
-constraints = curry (handler, pkg, options) ->
+constraints = (pkg, options) ->
   updates = {}
   for name in pkg.constraints
-    await _constraints[name] updates, pkg, options
-  handler updates, pkg, options
+    # TODO this is returning a stack instead of the updates
+    #      the return value isn't even being returned:
+    #      we just get the original arguments back as a stack
+    #      worked before b/c we'd just updating pkg
+    merge updates, await _constraints[name] name, pkg, options
+  updates
 
 write = (updates, pkg, options) ->
   for path, content of updates
@@ -65,13 +61,14 @@ notify = (updates, pkg) ->
 json = (text) -> try JSON.parse text
 
 nonzero = ({status}) -> status != 0
-
-commit = shell "git diff-index --quiet HEAD --", stack flow [
+commit = (message) ->
+  restore flow [
+    push shell "git diff-index --quiet HEAD --"
     test nonzero, flow [
       pop ->
       peek shell "git add -A ."
-      peek shell "git commit -m 'tempo refresh'"
+      peek shell "git commit -m '#{message}'"
     ]
   ]
 
-export {shell, constraints, json, commit, write, notify}
+export {shell, constraints, json, write, notify, commit}

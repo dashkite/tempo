@@ -1,29 +1,29 @@
 import {curry, flow} from "panda-garden"
 import {property, isDefined} from "panda-parchment"
-import {stack, peek, replace, test} from "@dashkite/katana"
-import {shell, json, commit, report} from "./combinators"
+import {stack, push, peek, pop, replace, test, restore, log as $log} from "@dashkite/katana"
+import {shell, json, commit} from "./combinators"
 import verify from "./verify"
 import log from "../log"
 
-wildstyle = curry (_, options) -> options.wildstyle?
+wildstyle = (pkg, options) -> options.wildstyle?
 
-# TODO run verify at the end to make sure everything updated
+updates = ({updated}, pkg) ->
+    for {name, version} in updated
+      log.info pkg, "updated [#{name}] to [#{version}]"
+
 update = stack flow [
 
-  peek shell "npm update --json", stack flow [
+  restore flow [
+    push shell "npm update --json"
     replace property "stdout"
     replace json
-    test isDefined, peek ({updated}, pkg) ->
-      for {name, version} in updated
-        log.info pkg, "updated [#{name}] to [#{version}]"
+    test isDefined, peek updates
   ]
 
   test wildstyle, peek shell "npx ncu -u"
 
-  peek commit
+  commit "tempo update"
 
-  # don't need to run report since we run it in verify
-  # TODO perhaps have verify take report: false as an option?
   peek verify
 
 ]

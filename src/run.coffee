@@ -18,7 +18,11 @@ clone = ({path, git}) ->
   # do we clone if rehearse is true?
 
 command = (pkg, command, options) ->
-  commands[ command ] pkg, options
+  try
+    commands[ command ] pkg, options
+  catch error
+    log.debug pkg, error
+    log.error pkg, error.message
 
 run = stack flow [
   peek announce
