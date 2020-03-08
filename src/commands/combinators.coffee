@@ -3,6 +3,7 @@ import Path from "path"
 import {identity, unary, curry, tee, rtee, flow} from "panda-garden"
 import {promise, w} from "panda-parchment"
 import {write as _write} from "panda-quill"
+import {stack, test, pop, peek} from "@dashkite/katana"
 import _constraints from "../constraints"
 import log from "../log"
 
@@ -42,29 +43,35 @@ shell = (action, handler = identity) ->
         log.error pkg, error.message
 
 # TODO perhaps we should just compose the constraints into a single flow
-constraints = (pkg, options) ->
+constraints = curry (handler, pkg, options) ->
+  updates = {}
   for name in pkg.constraints
-    await _constraints[name] name, pkg
+    await _constraints[name] updates, pkg, options
+  handler updates, pkg, options
 
-write = (pkg, options) ->
-  for path, content of pkg.updates
-    log.info pkg, "update [#{path}]"
-    unless options.rehearse
-      try
-        await _write (Path.resolve pkg.path, path), content
-      catch error
-        log.error pkg, error
-  pkg.updates = {}
+write = (updates, pkg, options) ->
+  for path, content of updates
+    try
+      unless options.rehearse
+        log.info "update [#{path}]"
+        await write (resolve pkg.path, path), content
+    catch error
+      log.debug error
+
+notify = (updates, pkg) ->
+  for path, content of updates
+    log.warn pkg, "[#{path}] needs updating"
 
 json = (text) -> try JSON.parse text
 
-results = curry (key, result, pkg) -> pkg.results[key] = result
+nonzero = ({status}) -> status != 0
 
-report = (pkg) ->
-  {errors} = pkg
-  if !(pkg.result ?= (errors.length == 0))
-    for error in errors
-      log.warn pkg, "- #{error}"
-    log.warn pkg, "see tempo.log for details"
+commit = shell "git diff-index --quiet HEAD --", stack flow [
+    test nonzero, flow [
+      pop ->
+      peek shell "git add -A ."
+      peek shell "git commit -m 'tempo refresh'"
+    ]
+  ]
 
-export {shell, constraints, write, json, results, report}
+export {shell, constraints, json, commit, write, notify}

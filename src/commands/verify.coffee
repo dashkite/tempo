@@ -1,7 +1,7 @@
 import {binary, curry, flow} from "panda-garden"
 import {property} from "panda-parchment"
 import {stack, peek, replace, test} from "@dashkite/katana"
-import {shell, json, constraints, run, report} from "./combinators"
+import {shell, json, constraints, notify} from "./combinators"
 import log from "../log"
 
 scope = curry (name, pkg, {scope}) -> !scope? || scope == name
@@ -16,7 +16,7 @@ verify = binary stack flow [
       replace json
       peek (result, pkg) ->
         if result.actions.length > 0
-          pkg.errors.push "audit failed"
+          log.warn "audit failed"
     ]
 
     peek shell "npm outdated --json", stack flow [
@@ -24,26 +24,18 @@ verify = binary stack flow [
       replace json
       peek (result, pkg) ->
         for name, version of result
-          pkg.errors.push "update [#{name}] to [#{version.wanted}]"
+          log.warn "update [#{name}] to [#{version.wanted}]"
     ]
   ]
 
   test (scope "build"), flow [
     peek shell "npm ci --colors false"
-    peek shell "npm test --colors false", stack flow [
-      peek ({status}, pkg) ->
-        pkg.errors.push "failing test(s)" if status != 0
-    ]
+    peek shell "npm test --colors false",
+      ({status}, pkg) -> log.warn pkg, "failing test(s)" if status != 0
   ]
 
-  test (scope "constraints"), flow [
-    peek constraints
-    peek (pkg) ->
-      for path, _ of pkg.updates
-        pkg.errors.push "[#{path}] needs updating"
-  ]
-
-  peek report
+  test (scope "constraints"),
+    peek constraints notify
 
 ]
 

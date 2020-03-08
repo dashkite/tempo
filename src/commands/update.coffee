@@ -1,7 +1,7 @@
 import {curry, flow} from "panda-garden"
 import {property, isDefined} from "panda-parchment"
 import {stack, peek, replace, test} from "@dashkite/katana"
-import {shell, json, run, report} from "./combinators"
+import {shell, json, commit, report} from "./combinators"
 import verify from "./verify"
 import log from "../log"
 
@@ -19,6 +19,8 @@ update = stack flow [
   ]
 
   test wildstyle, peek shell "npx ncu -u"
+
+  peek commit
 
   # don't need to run report since we run it in verify
   # TODO perhaps have verify take report: false as an option?

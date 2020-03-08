@@ -4,6 +4,7 @@ import {equal, last, isArray, isObject, isString} from "panda-parchment"
 import {read} from "panda-quill"
 import Method from "panda-generics"
 import YAML from "js-yaml"
+import log from "../log"
 
 
 _lookup = Method.create()
@@ -27,21 +28,16 @@ Method.define _update, isArray, isAny, isObject,
 Method.define _update, isString, isAny, isObject, (reference, value, object) ->
   _update (reference.split "."), value, object
 
-log =
-  info: (context, message) -> context.messages.info.push message
-  warn: (context, message) -> context.messages.warn.push message
-  fatal: (context, message) -> context.messages.fatal.push message
-
 constraintsPath = resolve __dirname, "..", "..", "constraints"
 
-file = curry (path, name, pkg) ->
+file = curry (path, updates, pkg) ->
+  log.info pkg, "checking [#{path}]"
   try
     expected = await read resolve constraintsPath, name, path
     actual = await read resolve pkg.path, path
-    if expected != actual
-      pkg.updates[path] = expected
+    updates[path] = expected if expected != actual
   catch error
-    log.warn error
+    log.debug error
 
 serializer = (extension) ->
   switch extension[1..]
