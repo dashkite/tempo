@@ -12,7 +12,7 @@ _shell = (pkg, action) ->
 
     [program, args...] = w action
     path = Path.resolve process.cwd(), pkg.path
-    child = spawn program, args, cwd: path
+    child = spawn program, args, cwd: path, shell: true
 
     stdout = stderr = ""
     child.stdout.on "data", (data) ->
@@ -27,28 +27,24 @@ _shell = (pkg, action) ->
     child.on "close", (status) -> resolve {action, status, stdout, stderr}
 
 shell = (action, handler = identity) ->
-  (pkg) -> pkg.actions.push [ action, handler ]
+  (pkg, options) ->
+    log.info pkg, "run [#{action}]"
+    unless options.rehearse
+      try
+        result = await _shell pkg, action
+        if result.status != 0
+          pkg.result = false
+          log.debug pkg, "[#{action}] exited with a non-zero status"
+        handler result, pkg, options
+      catch error
+        pkg.result = false
+        log.debug pkg, error
+        log.error pkg, error.message
 
 # TODO perhaps we should just compose the constraints into a single flow
 constraints = (pkg, options) ->
   for name in pkg.constraints
     await _constraints[name] name, pkg
-
-run = (pkg, options) ->
-  while pkg.actions.length > 0
-    [ action, handler ] = pkg.actions.shift()
-    log.info pkg, "run [#{action}]"
-    unless options.rehearse
-      try
-        pkg.results[action] = result = await _shell pkg, action
-        if result.status != 0
-          pkg.result = false
-          log.warn pkg, "[#{action}] exited with a non-zero status"
-        handler result, pkg
-      catch error
-        pkg.result = false
-        log.debug pkg, error
-        log.error pkg, error.message
 
 write = (pkg, options) ->
   for path, content of pkg.updates
@@ -58,6 +54,7 @@ write = (pkg, options) ->
         await _write (Path.resolve pkg.path, path), content
       catch error
         log.error pkg, error
+  pkg.updates = {}
 
 json = (text) -> try JSON.parse text
 
@@ -70,4 +67,4 @@ report = (pkg) ->
       log.warn pkg, "- #{error}"
     log.warn pkg, "see tempo.log for details"
 
-export {shell, constraints, run, write, json, results, report}
+export {shell, constraints, write, json, results, report}

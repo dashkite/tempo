@@ -20,8 +20,6 @@ update = stack flow [
 
   test wildstyle, peek shell "npx ncu -u"
 
-  peek run
-
   # don't need to run report since we run it in verify
   # TODO perhaps have verify take report: false as an option?
   peek verify

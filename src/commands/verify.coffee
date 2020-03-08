@@ -36,8 +36,6 @@ verify = binary stack flow [
     ]
   ]
 
-  peek run
-
   test (scope "constraints"), flow [
     peek constraints
     peek (pkg) ->
