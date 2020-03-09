@@ -52,10 +52,9 @@ write = (updates, pkg, options) ->
         log.info pkg, "update [#{path}]"
         await _write (pkg.resolve path), content
     catch error
-      pkg.errors.push error.message
-      log.debug pkg, error
+      pkg.errors.push error
 
-notify = (updates, pkg) ->
+report = (updates, pkg) ->
   for path, content of updates
     log.warn pkg, "[#{path}] needs updating"
 
@@ -72,4 +71,4 @@ commit = (message) ->
     ]
   ]
 
-export {shell, constraints, json, write, notify, commit}
+export {shell, constraints, json, write, report, commit}

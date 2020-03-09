@@ -7,7 +7,9 @@ class Package
 
   @resolve: (pkg, path) -> resolve pkg.path, path
 
-  constructor: ({@path, @git, @constraints}) -> assign @, errors: []
+  constructor: ({@path, @git, @constraints}) ->
+    assign @, errors: []
+    @constraints ?= []
 
   resolve: (path) -> Package.resolve @, path
 
