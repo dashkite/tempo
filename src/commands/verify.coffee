@@ -1,6 +1,6 @@
 import {binary, curry, flow} from "panda-garden"
 import {property} from "panda-parchment"
-import {stack, push, pop, peek, replace, test, restore, log as _log} from "@dashkite/katana"
+import {stack, push, pop, peek, replace, test, restore, log as $log} from "@dashkite/katana"
 import {shell, json, constraints, notify} from "./combinators"
 import log from "../log"
 
@@ -26,7 +26,7 @@ verify = binary stack flow [
       replace json
       peek (result, pkg) ->
         for name, version of result
-          log.warn "update [#{name}] to [#{version.wanted}]"
+          log.warn pkg, "update [#{name}] to [#{version.wanted}]"
     ]
   ]
 

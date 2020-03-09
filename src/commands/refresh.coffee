@@ -1,6 +1,6 @@
 import {curry, rtee, flow} from "panda-garden"
 import {property} from "panda-parchment"
-import {stack, push, pop, peek, replace, restore, test} from "@dashkite/katana"
+import {stack, push, pop, peek, replace, restore, test, log} from "@dashkite/katana"
 import {shell, constraints, write, commit} from "./combinators"
 import verify from "./verify"
 

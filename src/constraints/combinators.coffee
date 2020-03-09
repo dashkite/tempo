@@ -28,18 +28,17 @@ Method.define _update, isArray, isAny, isObject,
 Method.define _update, isString, isAny, isObject, (reference, value, object) ->
   _update (reference.split "."), value, object
 
-constraintsPath = resolve __dirname, "..", "..", "constraints"
-
 # TODO this message gets logged twice for update/refresh
-file = curry (path, name, pkg, options) ->
-  log.info pkg, "checking [#{path}]"
+file = curry (path, constraint, pkg, options) ->
+  log.info pkg, "check [#{path}]"
   try
-    expected = await read resolve constraintsPath, name, path
-    actual = await read resolve pkg.path, path
+    # TODO path helpers for package/constraint might be nice
+    #      ex: read Constraint.resolve constraint, path
+    #      or shorthand version: constraint.resolve path
+    expected = await read constraint.resolve path
+    actual = await read pkg.resolve path
     if expected != actual
-      [path]: expected
-    else
-      {}
+      constraint.updates[path] = expected
   catch error
     log.debug error
 
