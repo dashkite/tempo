@@ -43,9 +43,9 @@ verify = compact all (text "verify"),
     (tag "scope", (any dependencies, build, constraints)))
 
 # update command
-wild = text "wild"
+wildstyle = text "wildstyle"
 update = compact all (text "update"),
-  (optional first strip all ws, flag wild)
+  (optional first strip all ws, flag wildstyle)
 
 # refresh command
 refresh = all text "refresh"
@@ -57,7 +57,11 @@ version = compact all (text "version"),
   (optional first strip all ws, (flag any major, minor))
 
 # publish command
-publish = all text "publish"
+# - path for now is just non-ws
+# TODO allow for ws in paths?
+path = re /^\S+/
+publish = all (text "publish"),
+  optional second all ws, tag "path", path
 
 # packages command
 list = tag "subcommand", text "list"

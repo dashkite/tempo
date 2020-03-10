@@ -50,6 +50,16 @@ run = stack flow [
   peek announce
   push -> read resolve "packages.yaml"
   replace yaml
+  # TODO we need a stack combinator that can handle this scenario
+  ([packages, command, options]) ->
+    if options.path?
+      [
+        [ packages.find ({path}) -> path == options.path ]
+        command
+        options
+      ]
+    else
+      [ packages, command, options ]
   map flow [
     replace Package.create
     peek clone

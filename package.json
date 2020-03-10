@@ -31,6 +31,7 @@
   "dependencies": {
     "@dashkite/katana": "file:../katana",
     "chalk": "^3.0.0",
+    "dayjs": "^1.8.22",
     "js-yaml": "^3.13.1",
     "panda-garden": "^5.0.0",
     "panda-generics": "^6.0.2",

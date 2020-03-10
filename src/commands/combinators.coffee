@@ -28,7 +28,12 @@ _shell = (pkg, action) ->
       log.debug pkg, "[%s] [stderr] %s", action, text
       stderr += text
     child.on "error", (error) -> reject error
-    child.on "close", (status) -> resolve {action, status, stdout, stderr}
+    child.on "close", (status) ->
+      resolve
+        action: action
+        status: status
+        stdout: stdout.trim()
+        stderr: stderr.trim()
 
 shell = curry (action, pkg, options) ->
   log.info pkg, "run [#{action}]"

@@ -1,23 +1,26 @@
-import {curry, rtee, flow} from "panda-garden"
-import {peek, test} from "@dashkite/katana"
-import {stack} from "../helpers"
-import {chdir, shell, run, write, announce, constraints} from "./combinators"
+import dayjs from "dayjs"
+import {curry, tee, rtee, flow} from "panda-garden"
+import {stack, push, peek, pop, replace, restore, log} from "@dashkite/katana"
+import {shell} from "./combinators"
+
 
 version = stack flow [
 
-  peek chdir stack flow [
+  restore flow [
 
-    peek announce
+    push (pkg, {major, minor, wildstyle}) ->
+      if major || wildstyle
+        "npm version major"
+      else if minor
+        "npm version minor"
+      else
+        "npm version patch"
 
-    # TODO this should check the flags
-    peek shell "npm version patch"
-
-    # TODO do we want to do this?
-    peek shell "git push --tags"
-
-    peek run
+    peek shell
 
   ]
+
+  peek shell "git push --follow-tags"
 
 ]
 

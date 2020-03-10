@@ -36,7 +36,12 @@ file = curry (path, constraint, pkg, options) ->
     #      ex: read Constraint.resolve constraint, path
     #      or shorthand version: constraint.resolve path
     expected = await read constraint.resolve path
-    actual = await read pkg.resolve path
+    try
+      actual = await read pkg.resolve path
+    catch error
+      log.debug pkg, "unable to read [#{path}]"
+      log.debug pkg, error
+      actual = ""
     if expected != actual
       constraint.updates[path] = expected
   catch error
