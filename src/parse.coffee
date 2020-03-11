@@ -57,11 +57,7 @@ version = compact all (text "version"),
   (optional first strip all ws, (flag any major, minor))
 
 # publish command
-# - path for now is just non-ws
-# TODO allow for ws in paths?
-path = re /^\S+/
-publish = all (text "publish"),
-  optional second all ws, tag "path", path
+publish = all text "publish"
 
 # packages command
 list = tag "subcommand", text "list"
@@ -81,7 +77,20 @@ rehearse = rule (second strip all (text "rehearse"), ws, subcommands),
     [command, options]
 
 # grammar
-command = any subcommands, rehearse
+# - path for now is just non-ws
+# TODO allow for ws in paths?
+path = re /^\S+/
+command = rule (all (any subcommands, rehearse),
+  optional second all ws, tag "path", path),
+  ({value: [[command, options], {path}]}) ->
+    console.log {command, options, path}
+    if path?
+      options ?= {}
+      options.path = path
+      [command, options]
+    else
+      [command, options]
+
 
 parse = grammar command
 

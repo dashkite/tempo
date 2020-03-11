@@ -51,6 +51,8 @@ run = stack flow [
   push -> read resolve "packages.yaml"
   replace yaml
   # TODO we need a stack combinator that can handle this scenario
+  #      we onlyl want to replace the top N items of the stack
+  #      with M arguments
   ([packages, command, options]) ->
     if options.path?
       [
