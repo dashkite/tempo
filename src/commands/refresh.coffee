@@ -1,15 +1,13 @@
 import {curry, rtee, flow} from "panda-garden"
 import {property} from "panda-parchment"
-import {stack, push, pop, peek, replace, restore, test, log} from "@dashkite/katana"
-import {shell, constraints, write, commit} from "./combinators"
+import {stack, push, pop, peek, poke, test, log} from "@dashkite/katana"
+import {exec, constraints, write, commit} from "./combinators"
 import verify from "./verify"
 
 update = stack flow [
 
-  restore flow [
-    push constraints
-    peek write
-  ]
+  push constraints
+  pop write
 
   # TODO this is a reusable stack flow, not a true combinator
   #      maybe import from a different file?

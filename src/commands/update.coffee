@@ -1,7 +1,7 @@
 import {curry, flow} from "panda-garden"
 import {property, isDefined} from "panda-parchment"
-import {stack, push, peek, pop, replace, test, restore, log as $log} from "@dashkite/katana"
-import {shell, json, commit} from "./combinators"
+import {stack, push, peek, pop, poke, test, log as $log} from "@dashkite/katana"
+import {exec, json, commit} from "./combinators"
 import verify from "./verify"
 import log from "../log"
 
@@ -13,14 +13,13 @@ updates = ({updated}, pkg) ->
 
 update = stack flow [
 
-  restore flow [
-    push shell "npm update --json"
-    replace property "stdout"
-    replace json
-    test isDefined, peek updates
-  ]
+  push exec "npm update --json"
+  poke property "stdout"
+  poke json
+  test isDefined, pop updates
 
-  test wildstyle, peek shell "npx ncu -u"
+  # TODO we also want to log output here
+  # test wildstyle, peek exec "npx ncu -u"
 
   commit "tempo update"
 

@@ -6,8 +6,20 @@ import {wrap, curry, flow} from "panda-garden"
 import Method from "panda-generics"
 import {isType} from "panda-parchment"
 import {write} from "panda-quill"
-import {stack, push, peek, replace, call, log as _log} from "@dashkite/katana"
+import {stack, push, peek, poke, log as $log} from "@dashkite/katana"
 import Package from "./package"
+
+
+# TODO we need to figure how to do this via katana API
+#      this seems like a pretty normal thing to want to do ...
+#      with the old spush API we could just write
+#
+#          spush apply format
+#
+#      so maybe we should add those back?
+#
+
+apply = curry (f, stack) -> [ (f stack...), stack ]
 
 format = Method.create
   name: "format"
@@ -22,30 +34,30 @@ log =
 
   error: stack flow [
     push wrap "error"
-    call format
+    apply format
     peek append logfile
-    replace chalk.red
+    poke chalk.red
     peek append process.stderr
   ]
 
   warn: stack flow [
     push wrap "warn"
-    call format
+    apply format
     peek append logfile
-    replace chalk.yellow
+    poke chalk.yellow
     peek append process.stderr
   ]
 
   info: stack flow [
     push wrap "info"
-    call format
-    replace chalk.green
+    apply format
+    poke chalk.green
     peek append process.stdout
   ]
 
   debug: stack flow [
     push wrap "debug"
-    call format
+    apply format
     peek append logfile
   ]
 

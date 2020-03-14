@@ -83,7 +83,6 @@ path = re /^\S+/
 command = rule (all (any subcommands, rehearse),
   optional second all ws, tag "path", path),
   ({value: [[command, options], {path}]}) ->
-    console.log {command, options, path}
     if path?
       options ?= {}
       options.path = path

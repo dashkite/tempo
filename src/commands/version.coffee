@@ -1,26 +1,24 @@
+import {format} from "util"
 import dayjs from "dayjs"
-import {curry, tee, rtee, flow} from "panda-garden"
-import {stack, push, peek, pop, replace, restore, log} from "@dashkite/katana"
-import {shell} from "./combinators"
+import {binary, curry, tee, rtee, flow} from "panda-garden"
+import {stack, push, peek, pop, mpoke, branch, second, log} from "@dashkite/katana"
+import {exec} from "./combinators"
 
+major = ({major, wildstyle}) -> major? || wildstyle?
+minor = ({minor}) -> minor?
 
 version = stack flow [
 
-  restore flow [
-
-    push (pkg, {major, minor, wildstyle}) ->
-      if major || wildstyle
-        "npm version major"
-      else if minor
-        "npm version minor"
-      else
-        "npm version patch"
-
-    peek shell
-
+  branch [
+    [ (second major), push -> "major" ]
+    [ (second minor), push -> "minor" ]
+    push -> "patch"
   ]
+  mpoke binary format "npm version %s"
 
-  peek shell "git push --follow-tags"
+  pop exec
+
+  peek exec "git push --follow-tags"
 
 ]
 

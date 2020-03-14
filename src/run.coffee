@@ -1,12 +1,15 @@
-import {spawn} from "child_process"
 import {resolve} from "path"
 import YAML from "js-yaml"
 import {unary, flow} from "panda-garden"
+import {isDefined} from "panda-parchment"
 import {exist, read} from "panda-quill"
-import {promise} from "panda-parchment"
-import {stack, peek, push, replace, map, log as _log} from "@dashkite/katana"
+import {cover, stack,
+  peek, push, poke, test, branch,
+  third, over} from "@dashkite/katana"
+import {each} from "panda-river"
 import commands from "./commands"
 import Package from "./package"
+import exec from "./exec"
 import log from "./log"
 
 yaml = unary YAML.safeLoad
@@ -15,23 +18,9 @@ announce = (command, options) ->
   log.info "command: %s", command
   log.info "options: %s", options
 
-# TODO figure out how to do this via stack composition
-# the shell combinator handles dealing with rehearse option
-clone = (pkg, command, options) ->
+clone = (pkg, _, options) ->
   unless await exist pkg.path
-    log.info pkg, "git clone from [#{pkg.git}]"
-    unless options.rehearse
-      promise (resolve, reject) ->
-        child = spawn "git",
-          [ "clone", "-q", pkg.git, pkg.path ],
-          shell: true, inherit: true
-        child.on "error", (error) ->
-          pkg.errors.push error
-          reject error
-        child.on "close", (status) ->
-          if status != 0
-            log.warn pkg, "[git clone] exited with a non-zero status"
-          resolve()
+    exec "git clone -q #{pkg.git} #{pkg.path}", pkg, options
 
 command = (pkg, command, options) ->
   try
@@ -46,27 +35,36 @@ errors = (pkg, command, options) ->
       log.debug pkg, error
     log.warn pkg, "see tempo.log for details on errors"
 
+readPackages = flow [
+  read resolve "packages.yaml"
+  yaml
+]
+
+findPackage = (packages, _, options) ->
+  find ((pkg) -> pkg.path == options.path), packages
+
+runPackage = flow [
+  poke Package.create
+  peek clone
+  peek command
+  peek errors
+]
+
 run = stack flow [
   peek announce
-  push -> read resolve "packages.yaml"
-  replace yaml
-  # TODO we need a stack combinator that can handle this scenario
-  #      we onlyl want to replace the top N items of the stack
-  #      with M arguments
-  ([packages, command, options]) ->
-    if options.path?
-      [
-        [ packages.find ({path}) -> path == options.path ]
-        command
-        options
+  push readPackages
+  branch [
+    # if command referenced a specific package, find and run it
+    [
+      # stack: [ packages, command, options ]
+      third cover (options) -> options.path?
+      flow [
+        poke findPackage
+        test isDefined, runPackage
       ]
-    else
-      [ packages, command, options ]
-  map flow [
-    replace Package.create
-    peek clone
-    peek command
-    peek errors
+    ]
+    # else run each package
+    over each runPackage
   ]
 ]
 

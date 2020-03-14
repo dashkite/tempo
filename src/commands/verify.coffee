@@ -1,7 +1,7 @@
 import {binary, curry, flow} from "panda-garden"
 import {property} from "panda-parchment"
-import {stack, push, pop, peek, replace, test, restore, log as $log} from "@dashkite/katana"
-import {shell, json, constraints, report} from "./combinators"
+import {stack, push, pop, peek, poke, test, tee, log as $log} from "@dashkite/katana"
+import {exec, json, constraints, report} from "./combinators"
 import log from "../log"
 
 scope = curry (name, pkg, {scope}) -> !scope? || scope == name
@@ -14,22 +14,22 @@ verify = binary stack flow [
 
   test (scope "dependencies"), flow [
 
-    restore flow [
-      push shell "npm audit --json"
+    tee flow [
+      push exec "npm audit --json"
       test zero, flow [
-        replace property "stdout"
-        replace json
+        poke property "stdout"
+        poke json
         peek (result, pkg) ->
           if result.actions.length > 0
             log.warn pkg, "audit failed"
         ]
     ]
 
-    restore flow [
-      push shell "npm outdated --json"
+    tee flow [
+      push exec "npm outdated --json"
       test zero, flow [
-        replace property "stdout"
-        replace json
+        poke property "stdout"
+        poke json
         peek (result, pkg) ->
           for name, version of result
             log.warn pkg, "update [#{name}] to [#{version.wanted}]"
@@ -38,15 +38,15 @@ verify = binary stack flow [
   ]
 
   test (scope "build"), flow [
-    peek shell "npm ci --colors false"
-    restore flow [
-      push shell "npm test --colors false"
+    peek exec "npm ci --colors false"
+    tee flow [
+      push exec "npm test --colors false"
       test nonzero, (result, pkg) ->
         log.warn pkg, "failing test(s)"
     ]
   ]
 
-  test (scope "constraints"), restore flow [
+  test (scope "constraints"), tee flow [
     push constraints
     peek report
   ]
