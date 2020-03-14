@@ -2,7 +2,7 @@ import {format} from "util"
 import dayjs from "dayjs"
 import {binary, curry, tee, rtee, flow} from "panda-garden"
 import {stack, push, peek, pop, mpoke, branch, second, log} from "@dashkite/katana"
-import {exec} from "./combinators"
+import exec from "../exec"
 
 major = ({major, wildstyle}) -> major? || wildstyle?
 minor = ({minor}) -> minor?

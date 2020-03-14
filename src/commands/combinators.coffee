@@ -5,14 +5,11 @@ import {promise, w, merge} from "panda-parchment"
 import {write as _write} from "panda-quill"
 import {stack, test, push, pop, peek} from "@dashkite/katana"
 import Constraint from "../constraint"
-import _exec from "../exec"
+import exec from "../exec"
 import log from "../log"
 
 # TODO the version in garden should probably look like this
 apply = (f, args) -> f args...
-
-exec = curry (action, pkg, options) ->
-  exec pkg, action unless options.rehearse
 
 constraints = (pkg, options) ->
   apply merge, await do ->
@@ -47,4 +44,4 @@ commit = (message) ->
     ]
   ]
 
-export {exec, constraints, json, write, report, commit}
+export {constraints, json, write, report, commit}

@@ -1,8 +1,9 @@
 import {curry, flow} from "panda-garden"
 import {property, isDefined} from "panda-parchment"
 import {stack, push, peek, pop, poke, test, log as $log} from "@dashkite/katana"
-import {exec, json, commit} from "./combinators"
+import {json, commit} from "./combinators"
 import verify from "./verify"
+import exec from "../exec"
 import log from "../log"
 
 wildstyle = (pkg, options) -> options.wildstyle?

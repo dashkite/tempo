@@ -1,7 +1,8 @@
 import {binary, curry, flow} from "panda-garden"
 import {property} from "panda-parchment"
 import {stack, push, pop, peek, poke, test, tee, log as $log} from "@dashkite/katana"
-import {exec, json, constraints, report} from "./combinators"
+import {json, constraints, report} from "./combinators"
+import exec from "../exec"
 import log from "../log"
 
 scope = curry (name, pkg, {scope}) -> !scope? || scope == name

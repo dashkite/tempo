@@ -1,30 +1,31 @@
 import {spawn} from "child_process"
-import {resolve} from "path"
+import Path from "path"
 import {promise, all, w} from "panda-parchment"
 import {reduce} from "panda-river"
+import {curry} from "panda-garden"
 import log from "./log"
 
 utf8 = (data) -> data.toString "utf8"
 trim = (promise) -> (await promise).trim()
 
-exec = (command, pkg, options) ->
+exec = curry (command, pkg, options) ->
 
   promise (resolve, reject) ->
 
-    [program, args] = w command
+    [program, args...] = w command
 
     log.info pkg, "run [#{command}]"
 
     unless options.rehearse
 
-      path = resolve process.cwd(), pkg.path
+      path = Path.resolve process.cwd(), pkg.path
 
       child = spawn program, args, cwd: path, exec: true
 
       cat = (text, buffer) ->
         _text = utf8 buffer
         log.debug pkg, _text
-        string += _text
+        text += _text
 
       stdout = trim reduce cat, "", child.stdout
       stderr = trim reduce cat, "", child.stderr

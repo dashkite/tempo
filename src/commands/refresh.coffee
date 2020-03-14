@@ -1,7 +1,7 @@
 import {curry, rtee, flow} from "panda-garden"
 import {property} from "panda-parchment"
 import {stack, push, pop, peek, poke, test, log} from "@dashkite/katana"
-import {exec, constraints, write, commit} from "./combinators"
+import {constraints, write, commit} from "./combinators"
 import verify from "./verify"
 
 update = stack flow [

@@ -1,11 +1,12 @@
 import {resolve} from "path"
 import YAML from "js-yaml"
-import {unary, flow} from "panda-garden"
+import {unary, flow, wrap} from "panda-garden"
 import {isDefined} from "panda-parchment"
 import {exist, read} from "panda-quill"
 import {cover, stack,
   peek, push, poke, test, branch,
-  third, over} from "@dashkite/katana"
+  third, over,
+  log as $log} from "@dashkite/katana"
 import {each} from "panda-river"
 import commands from "./commands"
 import Package from "./package"
@@ -36,9 +37,13 @@ errors = (pkg, command, options) ->
     log.warn pkg, "see tempo.log for details on errors"
 
 readPackages = flow [
-  read resolve "packages.yaml"
+  wrap resolve "packages.yaml"
+  read
   yaml
 ]
+
+# TODO we need an iterable variant for this
+find = (predicate, array) -> array.find predicate
 
 findPackage = (packages, _, options) ->
   find ((pkg) -> pkg.path == options.path), packages
