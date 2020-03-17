@@ -20,7 +20,7 @@ exec = curry (command, pkg, options) ->
 
       path = Path.resolve process.cwd(), pkg.path
 
-      child = spawn program, args, cwd: path, exec: true
+      child = spawn program, args, cwd: path, shell: true
 
       cat = (text, buffer) ->
         _text = utf8 buffer
