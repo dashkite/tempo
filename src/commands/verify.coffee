@@ -42,7 +42,7 @@ verify = binary stack flow [
     peek exec "npm ci --colors false"
     tee flow [
       push exec "npm test --colors false"
-      test nonzero, (result, pkg) ->
+      test nonzero, peek (result, pkg) ->
         log.warn pkg, "failing test(s)"
     ]
   ]

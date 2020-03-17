@@ -85,7 +85,7 @@ command = rule (all (any subcommands, rehearse),
   ({value: [[command, options], _options]}) ->
     if _options?.path?
       options ?= {}
-      options.path = path
+      options.path = _options.path
       [command, options]
     else
       [command, options]
