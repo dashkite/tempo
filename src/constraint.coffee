@@ -1,5 +1,6 @@
 import {resolve} from "path"
 import {assign} from "panda-parchment"
+import {read} from "panda-quill"
 import constraints from "./constraints"
 
 # TODO add file cache
@@ -13,6 +14,9 @@ class Constraint
 
   @resolve: ({name}, path) -> resolve @path, name, path
 
+  @read: (constraint, path) ->
+    constraint.cache[path] ?= await read @resolve constraint, path
+
   # this is just here for completeness
   @run: (constraint, pkg, options) ->
     constraint.f constraint, pkg, options
@@ -24,6 +28,8 @@ class Constraint
       cache: {}
 
   resolve: (path) -> Constraint.resolve @, path
+
+  read: (path) -> Constraint.read @, path
 
   run: (pkg, options) -> Constraint.run @, pkg, options
 
