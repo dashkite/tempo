@@ -1,6 +1,6 @@
-import {binary, curry, flow} from "panda-garden"
+import {binary, curry, flow, tee} from "panda-garden"
 import {property} from "panda-parchment"
-import {stack, push, pop, peek, poke, test, tee, log as $log} from "@dashkite/katana"
+import {stack, push, pop, peek, poke, test, log as $log} from "@dashkite/katana"
 import {json, constraints, report} from "./combinators"
 import exec from "../exec"
 import log from "../log"

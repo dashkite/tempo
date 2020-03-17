@@ -3,7 +3,7 @@ import YAML from "js-yaml"
 import {unary, flow, wrap} from "panda-garden"
 import {isDefined} from "panda-parchment"
 import {exist, read} from "panda-quill"
-import {cover, stack,
+import {apply, stack,
   peek, push, poke, test, branch,
   third, over,
   log as $log} from "@dashkite/katana"
@@ -62,14 +62,17 @@ run = stack flow [
     # if command referenced a specific package, find and run it
     [
       # stack: [ packages, command, options ]
-      third cover (options) -> options.path?
+      third apply (options) -> options.path?
       flow [
         poke findPackage
         test isDefined, runPackage
       ]
     ]
     # else run each package
-    over each runPackage
+    [
+      wrap true
+      over each runPackage
+    ]
   ]
 ]
 

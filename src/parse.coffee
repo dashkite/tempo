@@ -82,8 +82,8 @@ rehearse = rule (second strip all (text "rehearse"), ws, subcommands),
 path = re /^\S+/
 command = rule (all (any subcommands, rehearse),
   optional second all ws, tag "path", path),
-  ({value: [[command, options], {path}]}) ->
-    if path?
+  ({value: [[command, options], _options]}) ->
+    if _options?.path?
       options ?= {}
       options.path = path
       [command, options]
