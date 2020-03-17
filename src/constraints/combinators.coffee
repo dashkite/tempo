@@ -1,10 +1,12 @@
 import {resolve, extname} from "path"
-import {binary, ternary, curry, rtee} from "panda-garden"
-import {equal, last, isObject} from "panda-parchment"
+import {curry, flow} from "panda-garden"
+import {equal, first, last, isObject, property} from "panda-parchment"
 import {read} from "panda-quill"
-import Method from "panda-generics"
+import {stack} from "@dashkite/katana"
 import YAML from "js-yaml"
 import log from "../log"
+
+constraint = (f) -> flow [ (stack f), first, property "updates" ]
 
 # TODO this message gets logged twice for update/refresh
 file = curry (path, constraint, pkg, options) ->
@@ -64,7 +66,7 @@ _format = (object) ->
       else
         key
 
-property = curry (path, object, context, pkg) ->
+properties = curry (path, object, context, pkg) ->
 
   {fromString, toString} = serializer extname path
 
@@ -86,6 +88,4 @@ property = curry (path, object, context, pkg) ->
     log.warn pkg, error.message
     log.debug pkg, error
 
-properties  = property
-
-export {file, property, properties}
+export {constraint, file, properties}
