@@ -3,16 +3,16 @@ import Path from "path"
 import {identity, unary, binary, curry, tee, rtee, flow} from "panda-garden"
 import {promise, w, merge} from "panda-parchment"
 import {write as _write} from "panda-quill"
-import {stack, test, push, pop, peek} from "@dashkite/katana"
+import {stack, test, push, pop, peek, apply} from "@dashkite/katana"
 import Constraint from "../constraint"
 import exec from "../exec"
 import log from "../log"
 
 # TODO the version in garden should probably look like this
-apply = (f, args) -> f args...
+_apply = (f, args) -> f args...
 
 constraints = (pkg, options) ->
-  apply merge, await do ->
+  _apply merge, await do ->
     for name in pkg.constraints
       await Constraint
         .create name
@@ -33,9 +33,12 @@ report = (updates, pkg) ->
 
 json = (text) -> try JSON.parse text
 
-nonzero = ({status}) -> status != 0
+zero = apply ({status}) -> status == 0
+
+nonzero = apply ({status}) -> status != 0
+
 commit = (message) ->
-  flow [
+  tee flow [
     push exec "git diff-index --quiet HEAD --"
     test nonzero, flow [
       pop ->
@@ -44,4 +47,4 @@ commit = (message) ->
     ]
   ]
 
-export {constraints, json, write, report, commit}
+export {constraints, json, write, report, zero, nonzero, commit}

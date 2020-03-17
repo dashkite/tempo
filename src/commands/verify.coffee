@@ -1,14 +1,11 @@
 import {binary, curry, flow, tee} from "panda-garden"
 import {property} from "panda-parchment"
 import {stack, push, pop, peek, poke, test, log as $log} from "@dashkite/katana"
-import {json, constraints, report} from "./combinators"
+import {json, constraints, report, zero, nonzero} from "./combinators"
 import exec from "../exec"
 import log from "../log"
 
 scope = curry (name, pkg, {scope}) -> !scope? || scope == name
-
-zero = ({status}) -> status == 0
-nonzero = ({status}) -> status != 0
 
 # TODO stack should preserve arity ala curry
 verify = binary stack flow [

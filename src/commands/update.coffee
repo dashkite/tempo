@@ -1,7 +1,8 @@
-import {curry, flow} from "panda-garden"
+import {curry, tee, flow} from "panda-garden"
 import {property, isDefined} from "panda-parchment"
-import {stack, push, peek, pop, poke, test, log as $log} from "@dashkite/katana"
-import {json, commit} from "./combinators"
+import {stack, push, peek, pop, poke, test,
+  apply, log as $log} from "@dashkite/katana"
+import {json, nonzero, commit} from "./combinators"
 import verify from "./verify"
 import exec from "../exec"
 import log from "../log"
@@ -14,10 +15,14 @@ updates = ({updated}, pkg) ->
 
 update = stack flow [
 
-  push exec "npm update --json"
-  poke property "stdout"
-  poke json
-  test isDefined, pop updates
+  tee flow [
+    push exec "npm update --json"
+    test nonzero, flow [
+      poke property "stdout"
+      poke json
+      test isDefined, peek updates
+    ]
+  ]
 
   # TODO we also want to log output here
   # test wildstyle, peek exec "npx ncu -u"
