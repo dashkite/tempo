@@ -21,9 +21,7 @@ class Constraint
     assign @,
       f: constraints[@name]
       updates: {}
-      cache:
-        content: {}
-        data: {}
+      cache: {}
 
   resolve: (path) -> Constraint.resolve @, path
 

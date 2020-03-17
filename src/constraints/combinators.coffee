@@ -1,32 +1,10 @@
 import {resolve, extname} from "path"
 import {binary, ternary, curry, rtee} from "panda-garden"
-import {equal, last, isArray, isObject, isString} from "panda-parchment"
+import {equal, last, isObject} from "panda-parchment"
 import {read} from "panda-quill"
 import Method from "panda-generics"
 import YAML from "js-yaml"
 import log from "../log"
-
-
-_lookup = Method.create()
-Method.define _lookup, isArray, isObject, (keys, object) ->
-  current = object
-  for key in keys
-    break if !current?
-    current = current?[key]
-  if current then current
-  else throw new Error "invalid key [#{keys.join "."}]"
-
-Method.define _lookup, isString, isObject, (reference, object) ->
-  _lookup (reference.split "."), object
-
-_update = Method.create()
-isAny = (-> true)
-
-Method.define _update, isArray, isAny, isObject,
-  ([keys..., key], value, object) -> (_lookup keys, object)[key] = value
-
-Method.define _update, isString, isAny, isObject, (reference, value, object) ->
-  _update (reference.split "."), value, object
 
 # TODO this message gets logged twice for update/refresh
 file = curry (path, constraint, pkg, options) ->
@@ -45,6 +23,7 @@ file = curry (path, constraint, pkg, options) ->
     if expected != actual
       constraint.updates[path] = expected
   catch error
+    log.warn pkg, error.message
     log.debug error
 
 serializer = (extension) ->
@@ -58,26 +37,55 @@ serializer = (extension) ->
     else
       throw new Error "unrecognized extension [#{extension}]"
 
-property = curry rtee (path, key, value, context) ->
+_match = (object, data) ->
+  for key, value of object
+    if isObject value
+      _match value, data[key]
+    else
+      if ! equal value, data[key]
+        return false
+  true
+
+_update = (object, data) ->
+  for key, value of object
+    if isObject value
+      _update value, data[key]
+    else
+      if ! equal value, data[key]
+        data[key] = value
+  data
+
+join = (d, ax) -> ax.join d
+_format = (object) ->
+  join ", ", do ->
+    for key, value of object
+      if isObject value
+        "#{key}.#{_format value}"
+      else
+        key
+
+property = curry (path, object, context, pkg) ->
 
   {fromString, toString} = serializer extname path
 
-  if (cached = context.package.cached[path])?
+  if (cached = context.cache[path])?
     {content, data} = cache
   else
-    content = await read resolve context.package.path, path
+    content = await read resolve pkg.path, path
     data = fromString content
-    context.package.cached[path] = {content, data}
+    context.cache[path] = {content, data}
 
   try
-    if value != _lookup key, data
-      _update key, value, data
-      log.info context, "update [#{key}] to [#{value}] in [#{path}]"
-      context.package.updates[path] = toString data
+    log.info pkg, "check [%s] in [%s]", (_format object), path
+    if ! _match object, data
+      _update object, data
+      content = toString data
+      context.cache[path] = {context, data}
+      context.updates[path] = content
   catch error
-    log.warn context, error.message
+    log.warn pkg, error.message
+    log.debug pkg, error
 
-properties = (path, dictionary) ->
-  flow ((property key, value) for key, value of dictionary)
+properties  = property
 
 export {file, property, properties}

@@ -1,6 +1,6 @@
 p9k = require "panda-9000"
 
-import {resolve} from "path"
+import {join, resolve, relative} from "path"
 import {spawn} from "child_process"
 import {w} from "panda-parchment"
 import {rmr} from "panda-quill"
@@ -21,7 +21,7 @@ compile = tee ({source, target}) ->
   target.content = coffee.compile source.content,
     bare: true
     inlineMap: true
-    filename: source.path
+    filename: join "..", relative ".", source.path
     transpile:
       presets: [[
         local "@babel/preset-env"

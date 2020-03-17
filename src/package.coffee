@@ -10,6 +10,7 @@ class Package
   constructor: ({@path, @git, @constraints}) ->
     assign @, errors: []
     @constraints ?= []
+    @cache = {}
 
   resolve: (path) -> Package.resolve @, path
 
