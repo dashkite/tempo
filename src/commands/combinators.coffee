@@ -12,23 +12,30 @@ import log from "../log"
 _apply = (f, args) -> f args...
 
 constraints = (pkg, options) ->
-  _apply merge, await do ->
-    for name in pkg.constraints
-      await Constraint
-        .create name
-        .run pkg, options
+  for name in pkg.constraints
+    await Constraint
+      .create name
+      .run pkg, options
 
-write = (updates, pkg, options) ->
-  for path, content of updates
-    try
-      unless options.rehearse
+# TODO arguably, a full write belongs in Package?
+#      Package.write is a proposed write
+#      we could have a Package.commit
+#      but presently all logging is done here
+#      so that would shift responsibility for that
+#      to Package
+write = (pkg, options) ->
+  unless options.rehearse
+    for path, content of pkg.updates
+      try
         log.info pkg, "update [#{path}]"
         await _write (pkg.resolve path), content
-    catch error
-      pkg.errors.push error
+      catch error
+        pkg.errors.push error
 
-report = (updates, pkg) ->
-  for path, content of updates
+# TODO this maybe also belongs in Package?
+#      see above re write combinator
+report = (pkg) ->
+  for path, content of pkg.updates
     log.warn pkg, "[#{path}] needs updating"
 
 json = (text) -> try JSON.parse text

@@ -6,8 +6,9 @@ import verify from "./verify"
 
 update = stack flow [
 
-  push constraints
-  pop write
+  peek constraints
+
+  peek write
 
   # TODO this is a reusable stack flow, not a true combinator
   #      maybe import from a different file?

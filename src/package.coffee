@@ -22,19 +22,37 @@ class Package
   @resolve: (pkg, path) -> resolve pkg.path, path
 
   @read: (pkg, path) ->
-    pkg.cache[path] ?= do =>
-      content = await read @resolve pkg, path
+    pkg.cache[path] ?= await do =>
       {fromString} = serializer extname path
+      content = await read @resolve pkg, path
       data = fromString content
       {content, data}
+
+  # this is a proposed write: must explicitly write to files
+  @write: (pkg, path, {content, data}) ->
+
+    {fromString, toString} = serializer extname path
+
+    # at least one of these must be defined
+    # we can derive one from the other if necessary
+    if content? || data?
+      data ?= fromString content
+      content ?= toString data
+      pkg.cache[path] = {content, data}
+      pkg.updates[path] = content
 
   constructor: ({@path, @scope, @git, @constraints}) ->
     assign @, errors: []
     @constraints ?= []
     @cache = {}
+    @updates = {}
 
   resolve: (path) -> Package.resolve @, path
 
   read: (path) -> Package.read @, path
+
+  write: (path, value) -> Package.write @, path, value
+
+  commit: -> Package.commit @
 
 export default Package

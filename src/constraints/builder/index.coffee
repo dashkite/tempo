@@ -1,8 +1,8 @@
 import {flow} from "panda-garden"
-import {peek, log as $log} from "@dashkite/katana"
-import {constraint, scoped, file, properties} from "../combinators"
+import {peek, stack, log as $log} from "@dashkite/katana"
+import {scoped, file, properties} from "../combinators"
 
-export default constraint flow [
+export default stack flow [
   peek scoped
   peek properties "package.json",
     scripts: test: "p9k test"

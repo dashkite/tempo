@@ -19,12 +19,11 @@ class Constraint
 
   # this is just here for completeness
   @run: (constraint, pkg, options) ->
-    constraint.f constraint, pkg, options
+    constraint._function constraint, pkg, options
 
   constructor: (@name) ->
     assign @,
-      f: constraints[@name]
-      updates: {}
+      _function: constraints[@name]
       cache: {}
 
   resolve: (path) -> Constraint.resolve @, path
