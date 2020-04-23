@@ -31,7 +31,7 @@ update = stack flow [
 
   # TODO see comment in refresh.coffee
   #       ... right now it's confusing to run this here
-  peek verify
+  # peek verify
 
 ]
 
