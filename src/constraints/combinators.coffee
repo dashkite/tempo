@@ -17,9 +17,10 @@ scoped = (_constraint, pkg, options) ->
 file = curry (path, _constraint, pkg, options) ->
 
   log.info pkg, "check [#{path}]"
+  _path = path.replace /^\./, "dot-"
 
   try
-    expected = await _constraint.read path
+    expected = await _constraint.read _path
   catch error
     log.warn pkg, "unable to check [#{path}]"
     log.debug pkg, error
@@ -68,7 +69,7 @@ properties = curry (path, object, _, pkg) ->
   try
     log.info pkg, "check [%s] in [%s]", (_format object), path
     if ! _match object, data
-      _update object, data 
+      _update object, data
       pkg.write path, {data}
   catch error
     log.warn pkg, error.message

@@ -4,6 +4,9 @@ import {stack, push, pop, peek, poke, test, log} from "@dashkite/katana"
 import {constraints, write, commit} from "./combinators"
 import verify from "./verify"
 
+# TODO should we have verify run before the commit?
+#      and then we conditionally commit based on the results
+
 update = stack flow [
 
   peek constraints
@@ -14,7 +17,6 @@ update = stack flow [
   #      maybe import from a different file?
   commit "tempo refresh"
 
-  # TODO this has the cached files so verify always fails if there were updates
   peek verify
 
 ]
