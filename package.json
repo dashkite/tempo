@@ -36,7 +36,8 @@
     "panda-garden": "^5.0.0",
     "panda-generics": "^6.0.2",
     "panda-grammar": "^2.0.0",
-    "panda-parchment": "^6.0.3"
+    "panda-parchment": "^6.0.3",
+    "sort-package-json": "^1.42.1"
   },
   "devDependencies": {
     "amen": "^3.0.0",

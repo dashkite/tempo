@@ -1,24 +1,31 @@
-import {format} from "util"
+import util from "util"
 import dayjs from "dayjs"
-import {binary, curry, tee, rtee, flow} from "panda-garden"
-import {stack, push, peek, pop, mpoke, branch, second, log} from "@dashkite/katana"
+import {wrap, binary, curry, flow} from "panda-garden"
+import {stack, apply, push, peek, pop, poke, test,
+  branch, second, log as $log} from "@dashkite/katana"
 import exec from "../exec"
+import {zero} from "./combinators"
 
-major = ({major, wildstyle}) -> major? || wildstyle?
-minor = ({minor}) -> minor?
+major = apply ({major, wildstyle}) -> major? || wildstyle?
+minor = apply ({minor}) -> minor?
+
+format = curry binary util.format
 
 version = stack flow [
 
   branch [
     [ (second major), push -> "major" ]
     [ (second minor), push -> "minor" ]
-    push -> "patch"
+    [ (wrap true), push -> "patch"]
   ]
-  mpoke binary format "npm version %s"
 
-  pop exec
+  poke format "npm version %s"
+  poke exec
 
-  peek exec "git push --follow-tags"
+  test zero, flow [
+    pop ->
+    peek exec "git push --follow-tags"
+  ]
 
 ]
 

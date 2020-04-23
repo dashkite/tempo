@@ -12,7 +12,7 @@ scoped = (_constraint, pkg, options) ->
       data.name = "@#{pkg.scope}/#{data.name}"
       pkg.write "package.json", {data}
   else
-    log.warn pkg, "missing module scope"
+    log.warn pkg, "scope undefined"
 
 file = curry (path, _constraint, pkg, options) ->
 
@@ -67,8 +67,9 @@ properties = curry (path, object, _, pkg) ->
 
   try
     log.info pkg, "check [%s] in [%s]", (_format object), path
-    _update object, data if ! _match object, data
-    pkg.write path, {data}
+    if ! _match object, data
+      _update object, data 
+      pkg.write path, {data}
   catch error
     log.warn pkg, error.message
     log.debug pkg, error

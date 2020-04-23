@@ -1,6 +1,8 @@
 import {spawn} from "child_process"
 import Path from "path"
-import {identity, unary, binary, curry, tee, rtee, flow} from "panda-garden"
+import sortPackageJSON from "sort-package-json"
+import {identity, unary, binary, curry, tee, rtee, flow,
+  flip, spread, pipe, apply as call} from "panda-garden"
 import {promise, w, merge} from "panda-parchment"
 import {write as _write} from "panda-quill"
 import {stack, test, push, pop, peek, apply} from "@dashkite/katana"
@@ -10,6 +12,10 @@ import log from "../log"
 
 # TODO the version in garden should probably look like this
 _apply = (f, args) -> f args...
+
+parseJSON = (json) -> JSON.parse json
+formatJSON = (data) -> JSON.stringify data, null, 2
+normalizePackageJSON = pipe parseJSON, sortPackageJSON, formatJSON
 
 constraints = (pkg, options) ->
   for name in pkg.constraints
@@ -28,9 +34,11 @@ write = (pkg, options) ->
     for path, content of pkg.updates
       try
         log.info pkg, "update [#{path}]"
+        content = normalizePackageJSON content if path == "package.json"
         await _write (pkg.resolve path), content
       catch error
         pkg.errors.push error
+    pkg.updates = {}
 
 # TODO this maybe also belongs in Package?
 #      see above re write combinator

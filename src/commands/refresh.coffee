@@ -14,6 +14,7 @@ update = stack flow [
   #      maybe import from a different file?
   commit "tempo refresh"
 
+  # TODO this has the cached files so verify always fails if there were updates
   peek verify
 
 ]

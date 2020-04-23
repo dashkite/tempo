@@ -31,12 +31,11 @@ exec = curry (command, pkg, options) ->
       stderr = trim reduce cat, "", child.stderr
 
       child.on "error", (error) ->
-        log.info pkg, error.message
         reject error
-        log.debug pkg, error
 
       child.on "close", (status) ->
         if status != 0
+          log.warn pkg, "[#{command}] exited with a non-zero status"
           log.debug pkg, "[#{command}] exited with a non-zero status"
         resolve {command, status, stdout, stderr}
 

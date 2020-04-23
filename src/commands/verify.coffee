@@ -36,6 +36,8 @@ verify = binary stack flow [
   ]
 
   test (scope "build"), flow [
+    # TODO this really slows things down ...
+    #      maybe make it optional somehow?
     peek exec "npm ci --colors false"
     tee flow [
       push exec "npm test --colors false"
@@ -44,7 +46,7 @@ verify = binary stack flow [
     ]
   ]
 
-  test (scope "constraints"), push constraints
+  test (scope "constraints"), peek constraints
 
   peek report
 
