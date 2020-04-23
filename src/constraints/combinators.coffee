@@ -17,6 +17,8 @@ scoped = (_constraint, pkg, options) ->
 file = curry (path, _constraint, pkg, options) ->
 
   log.info pkg, "check [#{path}]"
+
+  # TODO this might belong within Constraint
   _path = path.replace /^\./, "dot-"
 
   try

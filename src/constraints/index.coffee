@@ -1,6 +1,6 @@
 import builder from "./builder"
+import ethical from "./ethical"
 
-
-constraints = {builder}
+constraints = {builder, ethical}
 
 export default constraints

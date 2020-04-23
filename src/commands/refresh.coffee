@@ -17,7 +17,8 @@ update = stack flow [
   #      maybe import from a different file?
   commit "tempo refresh"
 
-  peek verify
+  # TODO see above ... right now it's confusing to run this here
+  # peek verify
 
 ]
 
