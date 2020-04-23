@@ -34,7 +34,8 @@ write = (pkg, options) ->
     for path, content of pkg.updates
       try
         log.info pkg, "update [#{path}]"
-        content = normalizePackageJSON content if path == "package.json"
+        if path == "package.json"
+          content = normalizePackageJSON content 
         await _write (pkg.resolve path), content
       catch error
         pkg.errors.push error
