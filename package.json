@@ -30,7 +30,7 @@
   "homepage": "https://github.com/dashkite/tempo#readme",
   "dependencies": {
     "@dashkite/katana": "file:../katana",
-    "chalk": "^3.0.0",
+    "chalk": "^4.0.0",
     "dayjs": "^1.8.25",
     "js-yaml": "^3.13.1",
     "panda-garden": "^5.0.0",
