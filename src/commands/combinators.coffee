@@ -36,7 +36,6 @@ write = (pkg, options) ->
         log.info pkg, "update [#{path}]"
         if path == "package.json"
           content = normalizePackageJSON content
-        console.log content
         await _write (pkg.resolve path), content
       catch error
         pkg.errors.push error
