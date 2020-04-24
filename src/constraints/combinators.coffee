@@ -35,7 +35,7 @@ file = curry (path, _constraint, pkg, options) ->
     content = ""
 
   if expected != content
-    pkg.write path, {content}
+    pkg.write path, content: expected
 
 _match = (object, data) ->
   for key, value of object
