@@ -77,4 +77,11 @@ properties = curry (path, object, _, pkg) ->
     log.warn pkg, error.message
     log.debug pkg, error
 
-export {scoped, file, properties}
+noLocalDependencies = (_constraint, pkg, options) ->
+  {data} = await pkg.read "package.json"
+  for type in [ "dependencies", "devDependencies" ]
+    for name, version of data[type]
+      if /^file:/.test version
+        log.warn pkg, "local dependency for [#{name}]: [#{version}]"
+
+export {scoped, file, properties, noLocalDependencies}
