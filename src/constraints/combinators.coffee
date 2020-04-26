@@ -78,6 +78,7 @@ properties = curry (path, object, _, pkg) ->
     log.debug pkg, error
 
 noLocalDependencies = (_constraint, pkg, options) ->
+  log.info pkg, "check for local dependencies"
   {data} = await pkg.read "package.json"
   for type in [ "dependencies", "devDependencies" ]
     for name, version of data[type]
