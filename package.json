@@ -4,7 +4,8 @@
   "description": "Polyrepo project and package management",
   "main": "build/src/index.js",
   "files": [
-    "./build"
+    "build/src",
+    "build/constraints"
   ],
   "bin": {
     "tempo": "./build/src/bin/tempo"
