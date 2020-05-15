@@ -31,13 +31,13 @@
   "dependencies": {
     "@dashkite/katana": "0.0.5",
     "chalk": "^4.0.0",
-    "dayjs": "^1.8.25",
+    "dayjs": "^1.8.27",
     "js-yaml": "^3.13.1",
     "panda-garden": "^5.0.0",
     "panda-generics": "^6.0.2",
     "panda-grammar": "^2.0.0",
     "panda-parchment": "^6.0.3",
-    "sort-package-json": "^1.42.1"
+    "sort-package-json": "^1.42.2"
   },
   "devDependencies": {
     "amen": "^3.0.0",
