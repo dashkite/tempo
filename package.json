@@ -38,6 +38,7 @@
     "panda-generics": "^6.0.2",
     "panda-grammar": "^2.0.0",
     "panda-parchment": "^6.0.3",
+    "panda-quill": "^5.0.0",
     "sort-package-json": "^1.42.2"
   },
   "devDependencies": {
