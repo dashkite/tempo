@@ -1,6 +1,6 @@
 {
   "name": "@dashkite/tempo",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "Polyrepo project and package management",
   "main": "build/src/index.js",
   "files": [
