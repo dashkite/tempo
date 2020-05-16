@@ -1,7 +1,7 @@
 import builder from "./builder"
 import ethical from "./ethical"
-import node from "./node"
+import basic from "./basic"
 
-constraints = {builder, ethical, node}
+constraints = {builder, ethical, basic}
 
 export default constraints
