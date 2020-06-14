@@ -13,7 +13,7 @@ import commands from "../src/commands"
 #
 # scenario = (_command) ->
 #   [command, options] = parse "rehearse #{_command}"
-#   pkg = Package.create path: "./test/files", constraints: [ "builder" ]
+#   pkg = Package.create path: "./test/files", exemplars: [ "builder" ]
 #   run pkg, command, options
 #
 # do ->

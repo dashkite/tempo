@@ -1,7 +1,7 @@
 import {curry, rtee, flow} from "panda-garden"
 import {property} from "panda-parchment"
 import {stack, push, pop, peek, poke, test, log} from "@dashkite/katana"
-import {constraints, write, commit} from "./combinators"
+import {exemplars, write, commit} from "./combinators"
 import verify from "./verify"
 
 # TODO should we have verify run before the commit?
@@ -9,7 +9,7 @@ import verify from "./verify"
 
 update = stack flow [
 
-  peek constraints
+  peek exemplars
 
   peek write
 

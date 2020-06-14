@@ -3,7 +3,7 @@ import {print, test, success} from "amen"
 
 # import {resolve} from "path"
 
-import {file, property} from "../src/constraints/combinators"
+import {file, property} from "../src/exemplars/combinators"
 
 # do ->
 #
@@ -13,7 +13,7 @@ import {file, property} from "../src/constraints/combinators"
 #       path: resolve "."
 #       cached: {}
 #       updates: {}
-#     constraint:
+#     exemplar:
 #       path: resolve "test", "files"
 #       cached: {}
 #     messages:
@@ -21,7 +21,7 @@ import {file, property} from "../src/constraints/combinators"
 #       warn: []
 #       fatal: []
 #
-#   print await test "constraints", [
+#   print await test "exemplars", [
 #
 #     test "property", [
 #

@@ -41,9 +41,9 @@ class Package
       pkg.cache[path] = {content, data}
       pkg.updates[path] = content
 
-  constructor: ({@path, @scope, @git, @constraints}) ->
+  constructor: ({@path, @scope, @git, @exemplars}) ->
     assign @, errors: []
-    @constraints ?= []
+    @exemplars ?= []
     @cache = {}
     @updates = {}
 

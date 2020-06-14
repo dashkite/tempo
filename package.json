@@ -5,7 +5,7 @@
   "main": "build/src/index.js",
   "files": [
     "build/src",
-    "build/constraints"
+    "build/exemplars"
   ],
   "bin": {
     "tempo": "./build/src/bin/tempo"

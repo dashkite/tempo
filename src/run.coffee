@@ -12,6 +12,7 @@ import {use, Fetch, from, url, method, request, text} from "@dashkite/mercury"
 import fetch from "node-fetch"
 import commands from "./commands"
 import Package from "./package"
+import Exemplar from "./exemplar"
 import exec from "./exec"
 import log from "./log"
 
@@ -41,6 +42,7 @@ errors = (pkg, command, options) ->
       log.debug pkg, error
     log.warn pkg, "see tempo.log for details on errors"
 
+addExemplar = ([name, module]) -> Exemplar.create name, module
 
 loadIndex = flow [
   # TODO shouldn't need to provide mode option
@@ -60,6 +62,11 @@ readPackages = flow [
   wrap resolve process.env.HOME, "./.tempo"
   read
   yaml
+  tee flow [
+    property "exemplars"
+    Object.entries
+    wait map addExemplar
+  ]
   property "indices"
   wait map loadIndex
   reduce cat, []

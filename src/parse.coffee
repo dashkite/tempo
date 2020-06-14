@@ -37,10 +37,10 @@ flag = (p) -> rule p, ({value}) -> [value]: true
 # verify command
 dependencies = text "dependencies"
 build = text "build"
-constraints = text "constraints"
+exemplars = text "exemplars"
 verify = compact all (text "verify"),
   (optional first strip all ws,
-    (tag "scope", (any dependencies, build, constraints)))
+    (tag "scope", (any dependencies, build, exemplars)))
 
 # update command
 wildstyle = text "wildstyle"

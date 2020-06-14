@@ -1,7 +1,7 @@
 import {binary, curry, flow, tee} from "panda-garden"
 import {property} from "panda-parchment"
 import {stack, push, pop, peek, poke, test, log as $log} from "@dashkite/katana"
-import {json, constraints, report, zero, nonzero} from "./combinators"
+import {json, exemplars, report, zero, nonzero} from "./combinators"
 import exec from "../exec"
 import log from "../log"
 
@@ -46,7 +46,7 @@ verify = binary stack flow [
     ]
   ]
 
-  test (scope "constraints"), peek constraints
+  test (scope "exemplars"), peek exemplars
 
   peek report
 

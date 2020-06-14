@@ -30,7 +30,7 @@ compile = tee ({source, target}) ->
 
 {define, glob, read, write, extension, copy} = p9k
 
-define "build", [ "clean", "bin&", "constraints&", "js&"]
+define "build", [ "clean", "bin&", "exemplars&", "js&"]
 
 define "clean", -> rmr "build"
 
@@ -49,10 +49,10 @@ define "bin", ->
     map copy "./build/src/bin"
   ]
 
-define "constraints", ->
+define "exemplars", ->
   go [
-    glob [ "**/*" ], "./constraints"
-    map copy "./build/constraints"
+    glob [ "**/*" ], "./exemplars"
+    map copy "./build/exemplars"
   ]
 
 define "test:js", ->

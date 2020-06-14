@@ -6,7 +6,7 @@ import {identity, unary, binary, curry, tee, rtee, flow,
 import {promise, w, merge} from "panda-parchment"
 import {write as _write} from "panda-quill"
 import {stack, test, push, pop, peek, apply} from "@dashkite/katana"
-import Constraint from "../constraint"
+import Exemplar from "../exemplar"
 import exec from "../exec"
 import log from "../log"
 
@@ -17,11 +17,9 @@ parseJSON = (json) -> JSON.parse json
 formatJSON = (data) -> JSON.stringify data, null, 2
 normalizePackageJSON = pipe parseJSON, sortPackageJSON, formatJSON
 
-constraints = (pkg, options) ->
-  for name in pkg.constraints
-    await Constraint
-      .create name
-      .run pkg, options
+exemplars = (pkg, options) ->
+  for name in pkg.exemplars
+    await Exemplar.run name, pkg, options
 
 # TODO arguably, a full write belongs in Package?
 #      Package.write is a proposed write
@@ -63,4 +61,4 @@ commit = (message) ->
     ]
   ]
 
-export {constraints, json, write, report, zero, nonzero, commit}
+export {exemplars, json, write, report, zero, nonzero, commit}
