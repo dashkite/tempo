@@ -1,19 +1,24 @@
 import {resolve} from "path"
 import YAML from "js-yaml"
-import {unary, flow, wrap} from "panda-garden"
-import {isDefined} from "panda-parchment"
+import {unary, flow, wrap, tee} from "panda-garden"
+import {property, cat, isDefined} from "panda-parchment"
 import {exist, read} from "panda-quill"
 import {apply, stack,
   peek, push, poke, test, branch,
   third, over,
   log as $log} from "@dashkite/katana"
-import {each} from "panda-river"
+import {wait, map, each, reduce} from "panda-river"
+import {use, Fetch, from, url, method, request, text} from "@dashkite/mercury"
+import fetch from "node-fetch"
 import commands from "./commands"
 import Package from "./package"
 import exec from "./exec"
 import log from "./log"
 
 yaml = unary YAML.safeLoad
+
+# TODO get rid of this once Mercury supports native Node HTTP client
+global.fetch = fetch
 
 announce = (command, options) ->
   log.info "command: %s", command
@@ -36,10 +41,28 @@ errors = (pkg, command, options) ->
       log.debug pkg, error
     log.warn pkg, "see tempo.log for details on errors"
 
+
+loadIndex = flow [
+  # TODO shouldn't need to provide mode option
+  use Fetch.client mode: "cors"
+  from [
+    property "data"
+    url
+  ]
+  method "get"
+  request
+  text
+  property "text"
+  yaml
+]
+
 readPackages = flow [
-  wrap resolve "packages.yaml"
+  wrap resolve process.env.HOME, "./.tempo"
   read
   yaml
+  property "indices"
+  wait map loadIndex
+  reduce cat, []
 ]
 
 # TODO we need an iterable variant for this
