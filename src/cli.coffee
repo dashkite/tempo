@@ -1,19 +1,10 @@
-import parse from "./parse"
-import run from "./run"
-import log from "./log"
+import YAML from "js-yaml"
+import FS from "fs/promises"
 
 do ->
 
-  input = process.argv[2..].join " "
+  [ path ] = process.argv[2..]
 
-  try
+  description = YAML.load await FS.readFile path, "utf8"
 
-    [command, options] = parse input
-
-    try
-      run command, options ? {}
-    catch error
-      log.error error
-
-  catch error
-    log.error "Unable to parse [#{input}]"
+  console.log description

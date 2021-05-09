@@ -30,23 +30,15 @@
   },
   "homepage": "https://github.com/dashkite/tempo#readme",
   "dependencies": {
-    "@dashkite/katana": "0.0.5",
-    "@dashkite/mercury": "0.0.20",
-    "chalk": "^4.0.0",
-    "dayjs": "^1.8.27",
-    "js-yaml": "^3.13.1",
-    "node-fetch": "^2.6.0",
-    "panda-garden": "^5.0.0",
-    "panda-generics": "^6.0.2",
-    "panda-grammar": "^2.0.0",
-    "panda-parchment": "^6.0.3",
-    "panda-quill": "^5.0.0",
-    "panda-river": "^6.0.0",
-    "sort-package-json": "^1.42.2"
+    "@dashkite/joy": "^0.2.6",
+    "@dashkite/katana": "0.4.6",
+    "chalk": "^4.1.1",
+    "js-yaml": "^4.1.0",
+    "sort-package-json": "^1.50.0"
   },
   "devDependencies": {
-    "amen": "^3.0.0",
-    "panda-9000": "^5.0.2",
-    "panda-builder": "^4.0.13"
+    "@dashkite/genie": "^0.1.0",
+    "@dashkite/genie-presets": "^0.0.5",
+    "amen": "^3.0.0"
   }
 }
