@@ -18,7 +18,7 @@ formatJSON = (data) -> JSON.stringify data, null, 2
 normalizePackageJSON = pipe parseJSON, sortPackageJSON, formatJSON
 
 exemplars = (pkg, options) ->
-  for name in pkg.exemplars
+  for name in Object.keys pkg.exemplars
     await Exemplar.run name, pkg, options
 
 # TODO arguably, a full write belongs in Package?

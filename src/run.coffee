@@ -1,6 +1,6 @@
 import {resolve} from "path"
 import YAML from "js-yaml"
-import {unary, flow, wrap, tee} from "panda-garden"
+import {unary, pipe, flow, wrap, tee} from "panda-garden"
 import {property, cat, isDefined} from "panda-parchment"
 import {exist, read} from "panda-quill"
 import {apply, stack,
@@ -42,7 +42,9 @@ errors = (pkg, command, options) ->
       log.debug pkg, error
     log.warn pkg, "see tempo.log for details on errors"
 
-addExemplar = ([name, module]) -> Exemplar.create name, module
+addExemplar = ([name, module]) ->
+  # await exec "npm i #{module}"
+  Exemplar.create name, module
 
 loadIndex = flow [
   # TODO shouldn't need to provide mode option
@@ -62,11 +64,6 @@ readPackages = flow [
   wrap resolve process.env.HOME, "./.tempo"
   read
   yaml
-  tee flow [
-    property "exemplars"
-    Object.entries
-    wait map addExemplar
-  ]
   property "indices"
   wait map loadIndex
   reduce cat, []
@@ -80,6 +77,11 @@ findPackage = (packages, _, options) ->
 
 runPackage = flow [
   poke Package.create
+  peek flow [
+    property "exemplars"
+    Object.entries
+    each addExemplar
+  ]
   peek clone
   peek command
   peek errors

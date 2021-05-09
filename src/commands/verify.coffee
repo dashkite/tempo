@@ -5,7 +5,9 @@ import {json, exemplars, report, zero, nonzero} from "./combinators"
 import exec from "../exec"
 import log from "../log"
 
-scope = curry (name, pkg, {scope}) -> !scope? || scope == name
+scope = curry (name, pkg, {scope}) ->
+  console.log "scope check!"
+  !scope? || scope == name
 
 # TODO stack should preserve arity ala curry
 verify = binary stack flow [
@@ -46,7 +48,7 @@ verify = binary stack flow [
     ]
   ]
 
-  test (scope "exemplars"), peek exemplars
+  test ((pkg, options) -> console.log pkg, options; true), peek exemplars
 
   peek report
 

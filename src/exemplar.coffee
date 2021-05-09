@@ -18,11 +18,13 @@ class Exemplar
 
   constructor: (@name, @module) ->
     @path = require.resolve @module
-    @run = (require @reference)(log)
+    @fn = (require @module).default log
     @_cache = {}
 
   resolve: (path) -> resolve @path, path
 
   read: (path) -> @_cache[path] ?= await read @resolve path
+
+  run: (pkg, options) -> @fn @, pkg, options
 
 export default Exemplar

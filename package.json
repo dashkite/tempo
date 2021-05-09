@@ -30,7 +30,7 @@
   },
   "homepage": "https://github.com/dashkite/tempo#readme",
   "dependencies": {
-    "@dashkite/katana": "0.0.5",
+    "@dashkite/katana": "0.0.10",
     "@dashkite/mercury": "0.0.20",
     "chalk": "^4.0.0",
     "dayjs": "^1.8.27",

@@ -1,0 +1,6 @@
+# Package Configurations
+
+Originally, Tempo just looked for a `packages.yaml` file in the directory in which it was running. This makes a certain amount of sense, especially because the package paths are relative. So the ideas was to put a packages file in the root of each directory where you wanted to manage a polyrepo. The problem was how to share that file, especially since it imposed an implied directory structure. And we have multiple “collections” of repos: that’s the whole idea behind a “polyrepo” architecture. We want to build and release *related* modules together, rather than treat *all* our repos as one big polyrepo. So we need to share a configuration that covers these collections, which means that either we have multiple `packages.yaml` files, or we need a way to indicate which collection we’re referring to, in which case, there’s little value in relying on the current directory structure to organize things.
+
+The most convenient means to share potentially private configurations is via `git clone`. NPM requires that you have a paid account (or run your own registry). Either way, we need some means to copy a configuration file, or a set of configuration files, and it sort of makes sense that you might want to manage multiple such configurations together anyway.
+
