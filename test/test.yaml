@@ -1,0 +1,4 @@
+paths:
+- test/foo
+actions:
+- cat bar.txt

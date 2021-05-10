@@ -4,14 +4,13 @@
   "description": "Polyrepo project and package management",
   "main": "build/src/index.js",
   "files": [
-    "build/src",
-    "build/constraints"
+    "build/src"
   ],
   "bin": {
     "tempo": "./build/src/bin/tempo"
   },
   "scripts": {
-    "test": "p9k test"
+    "test": "genie test"
   },
   "repository": {
     "type": "git",
