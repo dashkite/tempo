@@ -7,8 +7,6 @@ Define a set of projects and actions in YAML:
 paths:
 - foo
 - bar
-env:
-  version: patch
 actions:
 - build
 - test
@@ -36,5 +34,6 @@ Tempo is currently pretty basic. Features we may add:
 - Better logging, ability to control level
 - Command types (ex: copying a file, so that not everything has to be a task)
 - Improved Genie integration (becomes a command type)
+- Improved Git integration (becomes a command type)
 - Command sets, so you can control which actions are run for a set of files
 - And more!
