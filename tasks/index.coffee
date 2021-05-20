@@ -8,6 +8,8 @@ import * as _ from "@dashkite/joy"
 import * as m from "@dashkite/masonry"
 import {coffee} from "@dashkite/masonry/coffee"
 
+preset t, "release"
+
 # TODO incorporate into preset
 t.define "bin", ->
   await FS.mkdir "build/src/bin", recursive: true
