@@ -8,12 +8,12 @@ import * as _ from "@dashkite/joy"
 import * as m from "@dashkite/masonry"
 import {coffee} from "@dashkite/masonry/coffee"
 
-preset t, "*"
-
-
+# TODO incorporate into preset
 t.define "bin", ->
   await FS.mkdir "build/src/bin", recursive: true
   FS.copyFile "src/bin/tempo", "build/src/bin/tempo"
+
+t.define "clean", m.rm "build"
 
 t.define "build", [ "clean", "bin" ], m.start [
   m.glob [ "{src,test}/**/*.coffee" ], "."
@@ -25,8 +25,7 @@ t.define "build", [ "clean", "bin" ], m.start [
   ]
 ]
 
-t.define "test", "build", ->
-  m.exec "node", [
-    "build/test/index.js"
-    "--enable-source-maps"
-  ]
+t.define "test", "build", m.exec "node", [
+  "build/test/index.js"
+  "--enable-source-maps"
+]
