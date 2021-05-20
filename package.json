@@ -37,8 +37,8 @@
     "sort-package-json": "^1.50.0"
   },
   "devDependencies": {
-    "@dashkite/genie": "^0.3.1",
-    "@dashkite/genie-presets": "^0.1.0",
+    "@dashkite/genie": "^0.3.3",
+    "@dashkite/genie-presets": "^0.1.2",
     "amen": "^3.0.0"
   }
 }
