@@ -47,6 +47,8 @@ do ->
         if error.exitCode? && error.exitCode != 0
           console.error chalk.red "[tempo] [#{path}]
             exited with non-zero exit code #{error.exitCode}"
+          process.chdir wd
+          break
         console.error (chalk.red "[tempo] [#{path}]"),
           chalk.yellow error.message
 
