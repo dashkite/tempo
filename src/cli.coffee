@@ -4,6 +4,7 @@ import * as _ from "@dashkite/joy"
 import execa from "execa"
 import chalk from "chalk"
 
+
 do ->
 
   [ path ] = process.argv[2..]
@@ -18,7 +19,22 @@ do ->
     console.error "tempo: usage: tempo <file>"
     process.exit 1
 
-  wd = process.cwd()
+  wd = process.cwd()    
+
+  checkoutRepo = (path) ->
+    clone = "git@github.com:#{description.organization}/#{path}.git"
+    args = [ "clone", clone ]
+    console.error chalk.blue "[tempo] [#{path}] git clone #{clone}"
+    await execa "git", args, stdout: "inherit", stderr: "inherit"
+
+  recoveryAttempt = (path) ->
+    return false if !description.organization?
+    try
+      await checkoutRepo path
+      process.chdir path
+      true
+    catch
+      false
 
   for name, value of description.env
     process.env[name] = value
@@ -28,8 +44,11 @@ do ->
     try
       process.chdir path
     catch error
-      console.error (chalk.red "[tempo] [#{path}]"), chalk.yellow error.message
-      continue
+      if !( await recoveryAttempt path )
+        console.error (chalk.red "[tempo] [#{path}]"), 
+        chalk.yellow error.message
+        process.chdir wd
+        continue
 
     for action in description.actions
 
@@ -47,9 +66,11 @@ do ->
         if error.exitCode? && error.exitCode != 0
           console.error chalk.red "[tempo] [#{path}]
             exited with non-zero exit code #{error.exitCode}"
-          process.chdir wd
-          break
-        console.error (chalk.red "[tempo] [#{path}]"),
-          chalk.yellow error.message
+        else
+          console.error (chalk.red "[tempo] [#{path}]"),
+            chalk.yellow error.message
+
+        process.chdir wd
+        break
 
     process.chdir wd
