@@ -1,6 +1,4 @@
-paths:
-- test/foo
 env:
   greeting: hello world
 actions:
-- sh bar.sh
+  - sh bar.sh

@@ -1,14 +1,16 @@
 import assert from "assert"
 import {print, test, success} from "amen"
 import * as _ from "@dashkite/joy"
-import * as m from "@dashkite/masonry"
+import { command as exec } from "execa"
 
 do ->
 
   print await test "Tempo",  [
 
     test "basic test", ->
-      await m.exec "build/src/bin/tempo", [ "test/test.yaml" ]
+      await exec "build/node/src/bin/tempo
+        --project test/project.yaml
+        --actions test/actions.yaml"
   ]
 
   process.exit if success then 0 else 1

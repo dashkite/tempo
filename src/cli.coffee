@@ -1,22 +1,41 @@
+import FS from "node:fs/promises"
+import Path from "node:path"
+
 import YAML from "js-yaml"
-import FS from "fs/promises"
+
 import * as _ from "@dashkite/joy"
+
 import execa from "execa"
 import chalk from "chalk"
 
+import usage from "./usage"
+import getOptions from "./options"
+
+yaml = ( path ) -> 
+  try
+    YAML.load await FS.readFile path, "utf8"
+  catch
+    fatal "unable to read file '#{ path }'"
+
 do ->
+  
+  description = {}
+  options = getOptions()
 
-  [ path ] = process.argv[2..]
-
-  if path?
-    try
-      description = YAML.load await FS.readFile path, "utf8"
-    catch
-      console.error "tempo: unable to read file '#{path}'"
-      process.exit 1
+  if options.path?
+    
+    description = await yaml options.path
+    root = Path.dirname path
+  
+    description.paths ?= if Path.isAbsolute description.projects
+      await yaml description.project
+    else
+      await yaml Path.join root, description.project
+  
   else
-    console.error "tempo: usage: tempo <file>"
-    process.exit 1
+
+    description = await yaml options.actions
+    description.paths = await yaml options.project
 
   wd = process.cwd()
 
