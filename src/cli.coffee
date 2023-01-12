@@ -10,7 +10,9 @@ import chalk from "chalk"
 
 import usage from "./usage"
 import getOptions from "./options"
+import { fatal } from "./messages"
 
+  
 yaml = ( path ) -> 
   try
     YAML.load await FS.readFile path, "utf8"
@@ -60,21 +62,6 @@ do ->
       ( await yaml options.project )
 
   wd = process.cwd()    
-
-  checkoutRepo = (path) ->
-    clone = "git@github.com:#{description.organization}/#{path}.git"
-    args = [ "clone", clone ]
-    console.error chalk.blue "[tempo] [#{path}] git clone #{clone}"
-    await execa "git", args, stdout: "inherit", stderr: "inherit"
-
-  recoveryAttempt = (path) ->
-    return false if !description.organization?
-    try
-      await checkoutRepo path
-      process.chdir path
-      true
-    catch
-      false
 
   for name, value of description.env
     process.env[name] = value
