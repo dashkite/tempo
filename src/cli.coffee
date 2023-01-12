@@ -5,7 +5,7 @@ import YAML from "js-yaml"
 
 import * as _ from "@dashkite/joy"
 
-import execa from "execa"
+import { command as exec } from "execa"
 import chalk from "chalk"
 
 import usage from "./usage"
@@ -16,6 +16,27 @@ yaml = ( path ) ->
     YAML.load await FS.readFile path, "utf8"
   catch
     fatal "unable to read file '#{ path }'"
+
+run = ( action ) ->
+  exec action, stdout: "inherit", stderr: "inherit", shell: true
+
+clone = ( organization, path ) ->
+  console.error chalk.blue "[tempo] [#{path}] not found, running [git clone]"
+  run "git clone git@github.com:#{organization}/#{path}.git"
+
+chdir = ( organization, path ) ->
+  try
+    process.chdir path
+  catch error
+    switch error.code
+      when "ENOENT"
+        if organization?
+          await clone organization, path
+          process.chdir path
+        else
+          throw error
+      else
+        throw error
 
 do ->
   
@@ -34,8 +55,9 @@ do ->
   
   else
 
-    description = await yaml options.actions
-    description.paths = await yaml options.project
+    description = Object.assign {}, 
+      ( await yaml options.actions ),
+      ( await yaml options.project )
 
   wd = process.cwd()
 
@@ -43,25 +65,22 @@ do ->
     process.env[name] = value
 
   for path in description.paths
-
     try
-      process.chdir path
+      await chdir description.organization, path
     catch error
-      console.error (chalk.red "[tempo] [#{path}]"), chalk.yellow error.message
+      console.error (chalk.red "[tempo] [#{path}]"), chalk.red error.message
       continue
 
     for action in description.actions
 
-      if _.isString action
-        [ command, args... ] = _.words action
-      else
+      if _.isObject action
         { command, args } = action
         action = "#{command} #{_.join ' ', args}"
 
       console.error chalk.blue "[tempo] [#{path}] #{action}"
 
       try
-        await execa command, args, stdout: "inherit", stderr: "inherit"
+        await run action
       catch error
         if error.exitCode? && error.exitCode != 0
           console.error chalk.red "[tempo] [#{path}]

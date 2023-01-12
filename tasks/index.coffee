@@ -4,10 +4,6 @@ import FS from "fs/promises"
 import * as t from "@dashkite/genie"
 import preset from "@dashkite/genie-presets"
 
-import * as _ from "@dashkite/joy"
-import * as m from "@dashkite/masonry"
-import {coffee} from "@dashkite/masonry/coffee"
-
 preset t
 
 # TODO incorporate into preset
