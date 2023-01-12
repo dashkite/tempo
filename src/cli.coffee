@@ -59,7 +59,22 @@ do ->
       ( await yaml options.actions ),
       ( await yaml options.project )
 
-  wd = process.cwd()
+  wd = process.cwd()    
+
+  checkoutRepo = (path) ->
+    clone = "git@github.com:#{description.organization}/#{path}.git"
+    args = [ "clone", clone ]
+    console.error chalk.blue "[tempo] [#{path}] git clone #{clone}"
+    await execa "git", args, stdout: "inherit", stderr: "inherit"
+
+  recoveryAttempt = (path) ->
+    return false if !description.organization?
+    try
+      await checkoutRepo path
+      process.chdir path
+      true
+    catch
+      false
 
   for name, value of description.env
     process.env[name] = value
@@ -85,7 +100,11 @@ do ->
         if error.exitCode? && error.exitCode != 0
           console.error chalk.red "[tempo] [#{path}]
             exited with non-zero exit code #{error.exitCode}"
-        console.error (chalk.red "[tempo] [#{path}]"),
-          chalk.yellow error.message
+        else
+          console.error (chalk.red "[tempo] [#{path}]"),
+            chalk.yellow error.message
+
+        process.chdir wd
+        break
 
     process.chdir wd
