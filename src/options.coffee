@@ -12,7 +12,7 @@ getOptions = ->
         when "-a", "--actions"
           options.actions = argv.shift()
         when "-h", "--help"
-          console.log usage
+          usage()
         else
           if arg.startsWith "-"
             fatal "unknown option '#{ arg }'"
