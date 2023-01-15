@@ -31,14 +31,14 @@
   "dependencies": {
     "@dashkite/joy": "^0.3.16",
     "@dashkite/katana": "0.4.8",
-    "chalk": "^5.2.0",
+    "chalk": "^4.1.2",
     "execa": "^5.1.1",
     "js-yaml": "^4.1.0",
     "sort-package-json": "^2.1.0"
   },
   "devDependencies": {
+    "@dashkite/amen": "^0.2.0",
     "@dashkite/genie": "^0.5.11",
-    "@dashkite/genie-presets": "^0.6.0",
-    "amen": "^3.0.0"
+    "@dashkite/genie-presets": "^0.6.0"
   }
 }
