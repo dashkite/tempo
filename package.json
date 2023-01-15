@@ -4,10 +4,10 @@
   "description": "Polyrepo project and package management",
   "main": "build/src/index.js",
   "files": [
-    "build/src"
+    "build/node/src"
   ],
   "bin": {
-    "tempo": "./build/src/bin/tempo"
+    "tempo": "./build/node/src/bin/tempo"
   },
   "scripts": {
     "test": "genie test"
@@ -29,16 +29,16 @@
   },
   "homepage": "https://github.com/dashkite/tempo#readme",
   "dependencies": {
-    "@dashkite/joy": "^0.3.0",
-    "@dashkite/katana": "0.4.6",
-    "chalk": "^4.1.1",
+    "@dashkite/joy": "^0.3.16",
+    "@dashkite/katana": "0.4.8",
+    "chalk": "^5.2.0",
     "execa": "^5.1.1",
     "js-yaml": "^4.1.0",
-    "sort-package-json": "^1.50.0"
+    "sort-package-json": "^2.1.0"
   },
   "devDependencies": {
     "@dashkite/genie": "^0.5.11",
-    "@dashkite/genie-presets": "^0.5.7",
+    "@dashkite/genie-presets": "^0.6.0",
     "amen": "^3.0.0"
   }
 }
