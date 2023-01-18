@@ -1,97 +1,34 @@
-import FS from "node:fs/promises"
-import Path from "node:path"
+import { program, Command } from "commander"
+import Metarepo from "./metarepo"
 
-import YAML from "js-yaml"
+# TODO get version from package.json
+# program
+#   .version version
 
-import * as _ from "@dashkite/joy"
+program
+  .command "add"
+  .description "Add a project to a metarepo"
+  .alias "a"
+  .argument "<repo>", "The relative path of the repo"
+  .action Metarepo.add
 
-import { command as exec } from "execa"
-import chalk from "chalk"
-
-import usage from "./usage"
-import getOptions from "./options"
-import { fatal } from "./messages"
-
+program
+  .command "remove"
+  .description "Remove a project from a metarepo"
+  .aliases [ "rm", "del", "delete" ]
+  .argument "<repo>", "The relative path of the repo"
+  .action Metarepo.remove
   
-yaml = ( path ) -> 
-  try
-    YAML.load await FS.readFile path, "utf8"
-  catch
-    fatal "unable to read file '#{ path }'"
+program
+  .command "clone"
+  .alias "sync"
+  .description "Clone any missing repositories"
+  .action Metarepo.clone
 
-run = ( action ) ->
-  exec action, stdout: "inherit", stderr: "inherit", shell: true
+program
+  .command "import"
+  .description "Import respositories from a list"
+  .argument "<path>", "The path of the import file"
+  .action Metarepo.import
 
-clone = ( organization, path ) ->
-  console.error chalk.blue "[tempo] [#{path}] not found, running [git clone]"
-  run "git clone git@github.com:#{organization}/#{path}.git"
-
-chdir = ( organization, path ) ->
-  try
-    process.chdir path
-  catch error
-    switch error.code
-      when "ENOENT"
-        if organization?
-          await clone organization, path
-          process.chdir path
-        else
-          throw error
-      else
-        throw error
-
-do ->
-  
-  description = {}
-  options = getOptions()
-
-  if options.path?
-    
-    description = await yaml options.path
-    root = Path.dirname path
-  
-    description.paths ?= if Path.isAbsolute description.projects
-      await yaml description.project
-    else
-      await yaml Path.join root, description.project
-  
-  else
-
-    description = Object.assign {}, 
-      ( await yaml options.actions ),
-      ( await yaml options.project )
-
-  wd = process.cwd()    
-
-  for name, value of description.env
-    process.env[name] = value
-
-  for path in description.paths
-    try
-      await chdir description.organization, path
-    catch error
-      console.error (chalk.red "[tempo] [#{path}]"), chalk.red error.message
-      continue
-
-    for action in description.actions
-
-      if _.isObject action
-        { command, args } = action
-        action = "#{command} #{_.join ' ', args}"
-
-      console.error chalk.blue "[tempo] [#{path}] #{action}"
-
-      try
-        await run action
-      catch error
-        if error.exitCode? && error.exitCode != 0
-          console.error chalk.red "[tempo] [#{path}]
-            exited with non-zero exit code #{error.exitCode}"
-        else
-          console.error (chalk.red "[tempo] [#{path}]"),
-            chalk.yellow error.message
-
-        process.chdir wd
-        break
-
-    process.chdir wd
+program.parseAsync()

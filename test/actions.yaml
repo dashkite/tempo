@@ -1,4 +1,0 @@
-env:
-  greeting: hello world
-actions:
-  - sh bar.sh

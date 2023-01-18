@@ -7,6 +7,7 @@ specifiers:
   '@dashkite/joy': ^0.3.16
   '@dashkite/katana': 0.4.8
   chalk: ^4.1.2
+  commander: ^10.0.0
   execa: ^5.1.1
   js-yaml: ^4.1.0
   sort-package-json: ^2.1.0
@@ -15,6 +16,7 @@ dependencies:
   '@dashkite/joy': 0.3.16
   '@dashkite/katana': 0.4.8
   chalk: 4.1.2
+  commander: 10.0.0
   execa: 5.1.1
   js-yaml: 4.1.0
   sort-package-json: 2.1.0
@@ -2699,6 +2701,11 @@ packages:
 
   /color-name/1.1.4:
     resolution: {integrity: sha512-dOy+3AuW3a2wNbZHIuMZpTcgjGuLU/uBL/ubcZF9OXbDo8ff4O8yVp5Bf0efS8uEoYo5q4Fx7dY9OgQGXgAsQA==}
+
+  /commander/10.0.0:
+    resolution: {integrity: sha512-zS5PnTI22FIRM6ylNW8G4Ap0IEOyk62fhLSD0+uHRT9McRCLGpkVNvao4bjimpK/GShynyQkFFxHhwMcETmduA==}
+    engines: {node: '>=14'}
+    dev: false
 
   /commander/7.2.0:
     resolution: {integrity: sha512-QrWXB+ZQSVPmIWIhtEO9H+gwHaMGYiF5ChvoJ+K9ZGHG/sVsa6yiesAD1GC/x46sET00Xlwo1u49RVVVzvcSkw==}
