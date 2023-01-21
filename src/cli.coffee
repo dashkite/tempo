@@ -6,6 +6,9 @@ import Metarepo from "./metarepo"
 #   .version version
 
 program
+  .enablePositionalOptions()
+
+program
   .command "add"
   .description "Add a project to a metarepo"
   .alias "a"
@@ -40,7 +43,9 @@ program
   .command "exec"
   .description "Run a command across repos"
   .option "-t, --targets <targets>", "YAML file containing repos to target"
-  .argument "<command...>", "The command to run"
+  .passThroughOptions()
+  .argument "<command>", "The command to run"
+  .argument "[arguments...]", "Arguments to pass, if any"
   .action Metarepo.exec
 
 program
@@ -48,7 +53,7 @@ program
   .description "Run a Tempo script"
   .option "-t, --targets <targets>", "YAML file containing repos to target"
   .argument "<script>", "The script to run"
-  .argument "[arguments...]", "Arguments to pass into the script"
+  .argument "[arguments...]", "Arguments to pass, if any"
   .action Metarepo.run
 
 program.parseAsync()

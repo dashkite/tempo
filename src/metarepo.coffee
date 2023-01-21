@@ -75,9 +75,8 @@ Metarepo =
     for repo in repos
       await Metarepo.add repo
 
-  exec: ( command, { targets }) ->
-    command = command.join " "
-    
+  exec: ( command, args, { targets }) ->
+    command = [ command, args... ].join " "
     repos = await Configuration.Repos.list targets
     for { name } in repos
       log
