@@ -1,11 +1,9 @@
 import { program, Command } from "commander"
 import Metarepo from "./metarepo"
 
-# TODO get version from package.json
-# program
-#   .version version
-
 program
+  # TODO get version from package.json
+  # .version version
   .enablePositionalOptions()
 
 program
