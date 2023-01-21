@@ -35,7 +35,8 @@
     "commander": "^10.0.0",
     "execa": "^5.1.1",
     "js-yaml": "^4.1.0",
-    "sort-package-json": "^2.1.0"
+    "sort-package-json": "^2.1.0",
+    "ttycolor": "^1.1.0"
   },
   "devDependencies": {
     "@dashkite/amen": "^0.2.0",

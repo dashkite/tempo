@@ -33,8 +33,13 @@ Configuration =
       configuration.repos = configuration.repos.filter doesNotMatch repo
       Configuration.save configuration
 
-    list: ->
+    list: ( targets ) ->
       configuration = await Configuration.load()
-      configuration.repos
+      if targets?
+        ( YAML.load await FS.readFile targets, "utf8" )
+          .map ( name ) ->
+            configuration.repos.find ( repo ) -> repo.name == name
+      else
+        configuration.repos
 
 export default Configuration

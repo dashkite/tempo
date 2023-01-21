@@ -11,6 +11,7 @@ specifiers:
   execa: ^5.1.1
   js-yaml: ^4.1.0
   sort-package-json: ^2.1.0
+  ttycolor: ^1.1.0
 
 dependencies:
   '@dashkite/joy': 0.3.16
@@ -20,6 +21,7 @@ dependencies:
   execa: 5.1.1
   js-yaml: 4.1.0
   sort-package-json: 2.1.0
+  ttycolor: 1.1.0
 
 devDependencies:
   '@dashkite/amen': 0.2.0
@@ -2666,6 +2668,10 @@ packages:
     engines: {node: '>=10'}
     dev: true
 
+  /circular/1.0.5:
+    resolution: {integrity: sha512-n4Sspha+wxUl5zeA3JYp1zFCjsLz2VfXIe2gRKNQBrIX+7iPdGcCGZOF8W8IULtllZ/aejXtySfdFFt1wy/3JQ==}
+    dev: false
+
   /clean-stack/2.2.0:
     resolution: {integrity: sha512-4diC9HaTE+KRAMWhDhrGOECgWZxoevMc5TlkObMqNSsVU62PYzXZ/SMTjzyGAFF1YusgxGcSWTEXBhp0CPwQ1A==}
     engines: {node: '>=6'}
@@ -4618,6 +4624,12 @@ packages:
   /tslib/2.4.1:
     resolution: {integrity: sha512-tGyy4dAjRIEwI7BzsB0lynWgOpfqjUdq91XXAlIWD2OwKBH7oCl/GZG/HT4BOHrTlPMOASlMQ7veyTqpmRcrNA==}
     dev: true
+
+  /ttycolor/1.1.0:
+    resolution: {integrity: sha512-tKpNJCz5WQ/0Ktyi0T+XOBbyMOZ09XJIntqexA4nu6n4JWfjTiIOWKvSDfIS41MVV4WLb6X8D7LlQn5I9ypsdg==}
+    dependencies:
+      circular: 1.0.5
+    dev: false
 
   /type-is/1.6.18:
     resolution: {integrity: sha512-TkRKr9sUTxEH8MdfuCSP7VizJyzRNMjj2J2do2Jr3Kym598JVdEksuzPQCnlFPW4ky9Q+iA+ma9BGm06XQBy8g==}

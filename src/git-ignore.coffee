@@ -24,6 +24,8 @@ GitIgnore =
     ignored = await GitIgnore.load()
     ignored.delete name
     GitIgnore.save ignored
+
+  configure: -> GitIgnore.add ".tempo"
   
 
 export default GitIgnore
