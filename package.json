@@ -1,7 +1,7 @@
 {
   "name": "@dashkite/tempo",
   "version": "0.3.1",
-  "description": "Polyrepo project and package management",
+  "description": "Mono/polyrepo project management",
   "main": "build/src/index.js",
   "files": [
     "build/node/src"
@@ -17,6 +17,7 @@
     "url": "git+https://github.com/dashkite/tempo.git"
   },
   "keywords": [
+    "monorepo",
     "polyrepo",
     "package",
     "project",
