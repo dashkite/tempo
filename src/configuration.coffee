@@ -39,6 +39,7 @@ Configuration =
         ( YAML.load await FS.readFile targets, "utf8" )
           .map ( name ) ->
             configuration.repos.find ( repo ) -> repo.name == name
+          .filter ( repo ) -> repo?
       else
         configuration.repos
 
