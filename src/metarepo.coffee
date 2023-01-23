@@ -12,7 +12,11 @@ import GitIgnore from "./git-ignore"
 # TODO remove this feature in favor of env vars?
 expand = ( text, argv ) ->
   text
-    .replaceAll /\$(\d)/g, ( _, i ) -> argv[i]
+    .replaceAll /\$(\d)/g, ( _, i ) ->
+      if argv[i]?
+        argv[i]
+      else
+        throw new Error "tempo: missing positional argument $#{i}"
     .replaceAll /\$@/g, -> argv.join " "
 
 run = ( action, options ) ->
