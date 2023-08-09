@@ -6,6 +6,11 @@ colors =
   error: chalk.red
   debug: chalk.blue
 
+format = ( level, items ) ->
+  items
+    .map ( item ) -> colors[ level ] "[ #{ item } ]"
+    .join ""
+
 class Logger
 
   @make: ( scopes ) -> 
@@ -14,10 +19,7 @@ class Logger
   scope: ( name ) ->
     Logger.make [ @scopes..., name ]
 
-  label: ( level ) ->
-    @scopes
-      .map ( item ) -> colors[ level ] "[ #{ item } ]"
-      .join ""
+  label: ( level ) -> format level, @scopes
 
   log: ( level, args... ) ->
     console[ level ] ( new Date ),

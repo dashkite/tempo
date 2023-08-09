@@ -1,33 +1,10 @@
 import FS from "node:fs/promises"
-
 import YAML from "js-yaml"
-import { command as exec } from "execa"
-
 import { log } from "./logger"
-import Repo from "./repo"
+import Repos from "./repos"
 import Configuration from "./configuration"
 import GitIgnore from "./git-ignore"
-
-# TODO make variable substition more robust
-# TODO remove this feature in favor of env vars?
-expand = ( text, argv ) ->
-  text
-    .replaceAll /\$(\d)/g, ( _, i ) ->
-      if argv[i]?
-        argv[i]
-      else
-        throw new Error "tempo: missing positional argument $#{i}"
-    .replaceAll /\$@/g, -> argv.join " "
-
-run = ( action, options ) ->
-  exec action, 
-    { stdout: "inherit", stderr: "inherit", shell: true, options... }
-
-isDirectory = ( name ) ->
-  try
-    ( await FS.stat name ).isDirectory()
-  catch
-    false
+import { expand, isDirectory } from "./helpers"
 
 Metarepo =
 
@@ -79,34 +56,16 @@ Metarepo =
     for repo in repos
       await Metarepo.add repo
 
-  exec: ( command, args, { targets }) ->
+  exec: ( command, args, { targets, serial }) ->
     command = [ command, args... ].join " "
     repos = await Configuration.Repos.list targets
-    for { name } in repos
-      log
-        .scope name
-        .info command
-      try
-        await run command, cwd: name
-      catch error
-        log
-          .scope name
-          .error error.message
+    Repos.run repos, command, { serial }
 
-  run: ( command, args, { targets }) ->
+  run: ( command, args, { targets, serial }) ->
     { scripts } = await Configuration.load()
     if ( script = scripts?[ command ])?
       repos = await Configuration.Repos.list targets
-      for { name } in repos
-        log
-          .scope name
-          .info command
-        try
-          await run ( expand script, args ), cwd: name
-        catch error
-          log
-            .scope name
-            .error error.message
+      Repos.run repos, ( expand script, args ), { serial }
     else
       log.error "run script [ #{ command } ] not defined"
 
