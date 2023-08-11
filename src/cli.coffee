@@ -40,7 +40,8 @@ program
 program
   .command "exec"
   .description "Run a command across repos"
-  .option "-t, --targets <targets>", "YAML file containing repos to target"
+  .option "-i, --include <include>", "YAML file containing repos to include"
+  .option "-x, --exclude <exclude>", "YAML file containing repos to exclude"
   .option "-s, --serial", "Run command for each repo serially", false
   .passThroughOptions()
   .argument "<command>", "The command to run"
@@ -50,7 +51,8 @@ program
 program
   .command "run"
   .description "Run a Tempo script"
-  .option "-t, --targets <targets>", "YAML file containing repos to target"
+  .option "-i, --include <include>", "YAML file containing repos to include"
+  .option "-x, --exclude <exclude>", "YAML file containing repos to exclude"
   .option "-s, --serial", "Run command for each repo serially", false
   .argument "<script>", "The script to run"
   .argument "[arguments...]", "Arguments to pass, if any"

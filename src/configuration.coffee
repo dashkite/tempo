@@ -11,11 +11,12 @@ doesNotMatch = ( repo ) -> negate matches repo
 
 Configuration =
 
-  load: ->
-    try
-      YAML.load await FS.readFile "tempo.yaml", "utf8"
-    catch
-      repos: []
+  load: do ({ repos } = {}) -> ->
+    repos ?= await do ->
+      try
+        YAML.load await FS.readFile "tempo.yaml", "utf8"
+      catch
+        repos: []
   
   save: (configuration) ->
     FS.writeFile "tempo.yaml", YAML.dump configuration
@@ -33,14 +34,25 @@ Configuration =
       configuration.repos = configuration.repos.filter doesNotMatch repo
       Configuration.save configuration
 
-    list: ( targets ) ->
+    load: ( path ) ->
       configuration = await Configuration.load()
-      if targets?
-        ( YAML.load await FS.readFile targets, "utf8" )
-          .map ( name ) ->
-            configuration.repos.find ( repo ) -> repo.name == name
-          .filter ( repo ) -> repo?
-      else
-        configuration.repos
+      ( YAML.load await FS.readFile path, "utf8" )
+        .map ( name ) ->
+          configuration.repos.find ( repo ) -> repo.name == name
+        .filter ( repo ) -> repo?
+
+    list: ({ include, exclude }) ->
+      configuration = await Configuration.load()
+      include = if include?
+        await Configuration.Repos.load include
+      else configuration.repos
+      exclude = if exclude?
+        await Configuration.Repos.load exclude 
+      else []
+      include.filter ( repo ) -> !( repo in exclude )
+
+
+
+
 
 export default Configuration

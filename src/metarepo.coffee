@@ -56,15 +56,15 @@ Metarepo =
     for repo in repos
       await Metarepo.add repo
 
-  exec: ( command, args, { targets, serial }) ->
+  exec: ( command, args, { include, exclude, serial }) ->
     command = [ command, args... ].join " "
-    repos = await Configuration.Repos.list targets
+    repos = await Configuration.Repos.list { include, exclude }
     Repos.run repos, command, { serial }
 
-  run: ( command, args, { targets, serial }) ->
+  run: ( command, args, { include, exclude, serial }) ->
     { scripts } = await Configuration.load()
     if ( script = scripts?[ command ])?
-      repos = await Configuration.Repos.list targets
+      repos = await Configuration.Repos.list { include, exclude }
       Repos.run repos, ( expand script, args ), { serial }
     else
       log.error "run script [ #{ command } ] not defined"
