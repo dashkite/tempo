@@ -41,7 +41,7 @@ Configuration =
           configuration.repos.find ( repo ) -> repo.name == name
         .filter ( repo ) -> repo?
 
-    list: ({ include, exclude }) ->
+    list: ({ include, exclude } = {}) ->
       configuration = await Configuration.load()
       include = if include?
         await Configuration.Repos.load include
