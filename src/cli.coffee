@@ -58,4 +58,14 @@ program
   .argument "[arguments...]", "Arguments to pass, if any"
   .action Metarepo.run
 
+program
+  .command "run-partial"
+  .description "Run a Tempo script using a file containing
+    a partial ordering of repos"
+  .alias "rp"
+  .requiredOption "-g, --groups <groups>", "YAML file describing the run groups"
+  .argument "<script>", "The script to run"
+  .argument "[arguments...]", "Arguments to pass, if any"
+  .action Metarepo.runGroups
+
 program.parseAsync()

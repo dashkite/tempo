@@ -51,6 +51,16 @@ Configuration =
       else []
       include.filter ( repo ) -> !( repo in exclude )
 
+    groups: ( path ) ->
+      configuration = await Configuration.load()
+      ( YAML.load await FS.readFile path, "utf8" )
+        .map ( group ) ->
+          group
+            .map ( name ) ->
+              configuration.repos.find ( repo ) -> repo.name == name
+            .filter ( repo ) -> repo?
+
+
 
 
 
