@@ -70,10 +70,10 @@ Metarepo =
     else
       log.error "run script [ #{ command } ] not defined"
 
-  runGroups: ( command, args, { groups }) ->
+  runGroups: ( command, args, { file }) ->
     { scripts } = await Configuration.load()
     if ( script = scripts?[ command ])?
-      groups = await Configuration.Repos.groups groups
+      groups = await Configuration.Repos.groups file
       await Repos.runGroups groups, ( expand script, args )
     else
       log.error "run script [ #{ command } ] not defined"
