@@ -54,18 +54,9 @@ program
   .option "-i, --include <include>", "YAML file containing repos to include"
   .option "-x, --exclude <exclude>", "YAML file containing repos to exclude"
   .option "-s, --serial", "Run command for each repo serially", false
+  .option "-g, --groups <groups>", "YAML file containing grouped repos"
   .argument "<script>", "The script to run"
   .argument "[arguments...]", "Arguments to pass, if any"
   .action Metarepo.run
-
-program
-  .command "run-partial"
-  .description "Run a Tempo script using a file containing
-    a partial ordering of repos"
-  .alias "rp"
-  .requiredOption "-f, --file <file>", "YAML file describing the run groups"
-  .argument "<script>", "The script to run"
-  .argument "[arguments...]", "Arguments to pass, if any"
-  .action Metarepo.runGroups
 
 program.parseAsync()

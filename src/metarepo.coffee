@@ -5,7 +5,7 @@ import Repos from "./repos"
 import Repo from "./repo"
 import Configuration from "./configuration"
 import GitIgnore from "./git-ignore"
-import { expand, isDirectory, run } from "./helpers"
+import { expand, isDirectory, run, ignore } from "./helpers"
 
 Metarepo =
 
@@ -62,18 +62,23 @@ Metarepo =
     repos = await Configuration.Repos.list { include, exclude }
     Repos.run repos, command, { serial }
 
-  run: ( command, args, { include, exclude, serial }) ->
-    { scripts } = await Configuration.load()
-    if ( script = scripts?[ command ])?
-      repos = await Configuration.Repos.list { include, exclude }
-      Repos.run repos, ( expand script, args ), { serial }
+  run: ( command, args, { include, exclude, groups, serial }) ->
+    if groups?
+      ignore [ "include", "exclude", "serial" ], 
+        { include, exclude, serial }
+      Metarepo.runGroups command, args, { groups }
     else
-      log.error "run script [ #{ command } ] not defined"
+      { scripts } = await Configuration.load()
+      if ( script = scripts?[ command ])?
+        repos = await Configuration.Repos.list { include, exclude }
+        Repos.run repos, ( expand script, args ), { serial }
+      else
+        log.error "run script [ #{ command } ] not defined"
 
-  runGroups: ( command, args, { file }) ->
+  runGroups: ( command, args, { groups }) ->
     { scripts } = await Configuration.load()
     if ( script = scripts?[ command ])?
-      groups = await Configuration.Repos.groups file
+      groups = await Configuration.Repos.groups groups
       await Repos.runGroups groups, ( expand script, args )
     else
       log.error "run script [ #{ command } ] not defined"

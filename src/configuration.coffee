@@ -9,17 +9,25 @@ matches = ( repo ) ->
 
 doesNotMatch = ( repo ) -> negate matches repo
 
+read = ( path ) ->
+  try
+    YAML.load await FS.readFile path, "utf8"
+
+write = ( path, data ) ->
+  FS.writeFile "tempo.yaml", YAML.dump data
+
 Configuration =
 
-  load: do ({ repos } = {}) -> ->
-    repos ?= await do ->
-      try
-        YAML.load await FS.readFile "tempo.yaml", "utf8"
-      catch
-        repos: []
+  load: do ({ configuration } = {}) -> ->
+    configuration ?= await do ->
+      repos: await read ".repos.yaml"
+      scripts: await read ".scripts.yaml"
   
-  save: (configuration) ->
-    FS.writeFile "tempo.yaml", YAML.dump configuration
+  save: ({ repos, scripts }) ->
+    Promise.all [
+      write ".repos.yaml", repos
+      write ".scripts.yaml", scripts
+    ]
 
   Repos:
 

@@ -9,7 +9,6 @@ expand = ( text, argv ) ->
         throw new Error "tempo: missing positional argument $#{i}"
     .replaceAll /\$@/g, -> argv.join " "
 
-
 import { command as exec } from "execa"
 
 run = ( action, options ) ->
@@ -24,7 +23,6 @@ round = do ( formatter = undefined ) ->
       minimumFractionDigits: 2
       maximumFractionDigits: 2
     formatter.format n
-
 
 import * as TK from "terminal-kit"
 
@@ -60,6 +58,14 @@ isDirectory = ( name ) ->
   catch
     false
 
+import { log } from "./logger"
+
+ignore = ( list, options ) ->
+  for item in list
+    if options[ item ]?
+      log.warn "ignoring option [ #{ item } ]"
+  null
+
 export {
   expand
   run
@@ -67,4 +73,5 @@ export {
   progress
   benchmark
   isDirectory
+  ignore
 }
