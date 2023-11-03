@@ -1,9 +1,15 @@
+import FS from "node:fs"
+import Path from "node:path"
 import { program, Command } from "commander"
 import Metarepo from "./metarepo"
 
 program
   # TODO get version from package.json
-  # .version version
+  .version do ({ path, json, pkg } = {}) ->
+    path = Path.join __dirname, "..", "..", "..", "package.json"
+    json = FS.readFileSync path, "utf8"
+    pkg = JSON.parse json
+    pkg.version
   .enablePositionalOptions()
 
 program
