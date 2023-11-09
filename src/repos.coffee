@@ -43,4 +43,8 @@ Repos =
       .info "finished in",
       "#{ duration }s"
 
+  tag: ( repos, tags ) ->
+    for repo in repos
+      Repo.tag repo, tags
+
 export default Repos 

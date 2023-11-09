@@ -18,4 +18,8 @@ Repo =
     [ organization, name ] = repo.split "/"
     { organization, name }
 
+  tag: ( repo, tags ) ->
+    repo.tags ?= []
+    repo.tags = Array.from new Set [ repo.tags..., tags... ]
+
 export default Repo

@@ -9,25 +9,38 @@ matches = ( repo ) ->
 
 doesNotMatch = ( repo ) -> negate matches repo
 
+fromName = ( repos, name ) ->
+  repos.find ( repo ) -> repo.name == name
+
 read = ( path ) ->
   try
     YAML.load await FS.readFile path, "utf8"
 
 write = ( path, data ) ->
-  FS.writeFile "tempo.yaml", YAML.dump data
+  FS.writeFile path, YAML.dump data
 
 Configuration =
 
   load: do ({ configuration } = {}) -> ->
-    configuration ?= await do ->
-      repos: await read ".repos.yaml"
-      scripts: await read ".scripts.yaml"
+     configuration ?= await do ({ repos, scripts } = {}) ->
+      [ repos, scripts ] = await Promise.all [
+        Configuration.Repos.load()
+        Configuration.Scripts.load()
+      ]
+      { repos, scripts }
   
   save: ({ repos, scripts }) ->
     Promise.all [
-      write ".repos.yaml", repos
-      write ".scripts.yaml", scripts
+      Configuration.Repos.save repos
+      Configuration.Scripts.save scripts
     ]
+  
+  Scripts:
+
+    load: do ({ scripts } = {}) -> -> scripts ?= read ".scripts.yaml"
+    
+    save: ( repos ) -> write ".scripts.yaml", repos
+
 
   Repos:
 
@@ -42,35 +55,38 @@ Configuration =
       configuration.repos = configuration.repos.filter doesNotMatch repo
       Configuration.save configuration
 
-    load: ( path ) ->
-      configuration = await Configuration.load()
-      ( YAML.load await FS.readFile path, "utf8" )
-        .map ( name ) ->
-          configuration.repos.find ( repo ) -> repo.name == name
-        .filter ( repo ) -> repo?
+    load: do ({ repos } = {}) -> -> repos ?= read ".repos.yaml"
+    
+    save: ( repos ) -> write ".repos.yaml", repos
 
-    list: ({ include, exclude } = {}) ->
-      configuration = await Configuration.load()
-      include = if include?
-        await Configuration.Repos.load include
-      else configuration.repos
-      exclude = if exclude?
-        await Configuration.Repos.load exclude 
-      else []
-      include.filter ( repo ) -> !( repo in exclude )
+    update: ( repos ) ->
+      _repos = await Configuration.Repos.load()
+      for _repo in _repos
+        if ( repo = repos.find matches _repo )?
+          Object.assign _repo, repo
+      Configuration.Repos.save _repos
+
+    list: ({ include, exclude, tags } = {}) ->
+      repos = await Configuration.Repos.load()
+      if include?
+        include = await read include
+        repos = repos.filter ( repo ) -> repo.name in include
+      if exclude?
+        exclude = await read exclude
+        repos = repos.filter ( repo ) -> !( repo.name in exclude )
+      if tags?
+        repos = repos.filter ( repo ) ->
+          if repo.tags?
+            tags.every ( tag ) -> tag in repo.tags
+          else false
+      repos
 
     groups: ( path ) ->
-      configuration = await Configuration.load()
-      ( YAML.load await FS.readFile path, "utf8" )
+      repos = await Configuration.Repos.load()
+      ( await read path )
         .map ( group ) ->
           group
-            .map ( name ) ->
-              configuration.repos.find ( repo ) -> repo.name == name
+            .map fromName repos
             .filter ( repo ) -> repo?
-
-
-
-
-
 
 export default Configuration

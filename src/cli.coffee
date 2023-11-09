@@ -14,40 +14,41 @@ program
 
 program
   .command "add"
-  .description "Add a project to a metarepo"
+  .description "add a project to a metarepo"
   .alias "a"
   .argument "<repo>", "The relative path of the repo"
   .action Metarepo.add
 
 program
   .command "remove"
-  .description "Remove a project from a metarepo"
+  .description "aemove a project from a metarepo"
   .aliases [ "rm", "del", "delete" ]
   .argument "<repo>", "The relative path of the repo"
   .action Metarepo.remove
   
 program
   .command "clone"
-  .description "Clone a metarepo"
+  .description "clone a metarepo"
   .argument "<metarepo>", "The relative path of the repo"
   .action Metarepo.clone
 
 program
   .command "sync"
-  .description "Sync a metarepo with remote"
+  .description "sync a metarepo with remote"
   .action Metarepo.sync
 
 program
   .command "import"
-  .description "Import respositories from a list"
+  .description "import respositories from a list"
   .argument "<path>", "The path of the import file"
   .action Metarepo.import
 
 program
   .command "exec"
-  .description "Run a command across repos"
+  .description "run a command across repos"
   .option "-i, --include <include>", "YAML file containing repos to include"
   .option "-x, --exclude <exclude>", "YAML file containing repos to exclude"
+  .option "-t, --tags <tags...>", "Tags to include"
   .option "-s, --serial", "Run command for each repo serially", false
   .passThroughOptions()
   .argument "<command>", "The command to run"
@@ -56,13 +57,23 @@ program
 
 program
   .command "run"
-  .description "Run a Tempo script"
+  .description "run a saved script"
   .option "-i, --include <include>", "YAML file containing repos to include"
   .option "-x, --exclude <exclude>", "YAML file containing repos to exclude"
+  .option "-t, --tags <tags...>", "Tags to include"
   .option "-s, --serial", "Run command for each repo serially", false
   .option "-g, --groups <groups>", "YAML file containing grouped repos"
   .argument "<script>", "The script to run"
   .argument "[arguments...]", "Arguments to pass, if any"
   .action Metarepo.run
+
+program
+  .command "tag"
+  .description "tag a repository"
+  .option "-i, --include <include>", "YAML file containing repos to include"
+  .option "-x, --exclude <exclude>", "YAML file containing repos to exclude"
+  .option "-d, --delete", "Delete tags"
+  .argument "<tags...>", "The tags to apply to a set of repos"
+  .action Metarepo.tag
 
 program.parseAsync()
