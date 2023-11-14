@@ -9,8 +9,8 @@ matches = ( repo ) ->
 
 doesNotMatch = ( repo ) -> negate matches repo
 
-fromName = ( repos, name ) ->
-  repos.find ( repo ) -> repo.name == name
+fromName = ( repos ) ->
+  ( name ) -> repos.find ( repo ) -> repo.name == name
 
 read = ( path ) ->
   try

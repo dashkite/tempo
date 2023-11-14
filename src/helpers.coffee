@@ -62,7 +62,7 @@ import { log } from "./logger"
 
 ignore = ( list, options ) ->
   for item in list
-    if options[ item ]?
+    if options[ item ] == true
       log.warn "ignoring option [ #{ item } ]"
   null
 
