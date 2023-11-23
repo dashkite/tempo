@@ -75,6 +75,7 @@ Configuration =
         exclude = await read exclude
         repos = repos.filter ( repo ) -> !( repo.name in exclude )
       if tags?
+        tags = tags.split "+"
         repos = repos.filter ( repo ) ->
           if repo.tags?
             tags.every ( tag ) -> tag in repo.tags

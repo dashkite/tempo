@@ -48,8 +48,9 @@ program
   .description "run a command across repos"
   .option "-i, --include <include>", "YAML file containing repos to include"
   .option "-x, --exclude <exclude>", "YAML file containing repos to exclude"
-  .option "-t, --tags <tags...>", "Tags to include"
+  .option "-t, --tags <tags>", "Tags to include, separated by +"
   .option "-s, --serial", "Run command for each repo serially", false
+  .option "-g, --groups <groups>", "YAML file containing grouped repos"
   .passThroughOptions()
   .argument "<command>", "The command to run"
   .argument "[arguments...]", "Arguments to pass, if any"
@@ -60,7 +61,7 @@ program
   .description "run a saved script"
   .option "-i, --include <include>", "YAML file containing repos to include"
   .option "-x, --exclude <exclude>", "YAML file containing repos to exclude"
-  .option "-t, --tags <tags...>", "Tags to include"
+  .option "-t, --tags <tags>", "Tags to include, separated by +"
   .option "-s, --serial", "Run command for each repo serially", false
   .option "-g, --groups <groups>", "YAML file containing grouped repos"
   .argument "<script>", "The script to run"

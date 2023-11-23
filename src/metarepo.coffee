@@ -57,29 +57,25 @@ Metarepo =
     for repo in repos
       await Metarepo.add repo
 
-  exec: ( command, args, { include, exclude, tags, serial }) ->
+  exec: ( command, args, { include, exclude, tags, groups, serial }) ->
     command = [ command, args... ].join " "
-    repos = await Configuration.Repos.list { include, exclude, tags }
-    Repos.run repos, command, { serial }
-
-  run: ( command, args, { include, exclude, tags, groups, serial }) ->
     if groups?
       ignore [ "include", "exclude", "serial" ], 
         { include, exclude, serial }
-      Metarepo.runGroups command, args, { groups }
+      groups = await Configuration.Repos.groups groups
+      Repos.run groups, command
     else
-      { scripts } = await Configuration.load()
-      if ( script = scripts?[ command ])?
-        repos = await Configuration.Repos.list { include, exclude, tags }
-        Repos.run repos, ( expand script, args ), { serial }
-      else
-        log.error "run script [ #{ command } ] not defined"
+      repos = await Configuration.Repos.list {
+        include
+        exclude
+        tags
+      }
+      Repos.run repos, command, { serial }
 
-  runGroups: ( command, args, { groups }) ->
+  run: ( command, args, options ) ->
     { scripts } = await Configuration.load()
     if ( script = scripts?[ command ])?
-      groups = await Configuration.Repos.groups groups
-      await Repos.runGroups groups, ( expand script, args )
+      Metarepo.exec ( expand script, args ), [], options
     else
       log.error "run script [ #{ command } ] not defined"
 
