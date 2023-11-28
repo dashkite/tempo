@@ -71,6 +71,7 @@ program
 program
   .command "tag"
   .description "tag a repository"
+  .option "-r, --repo <name>", "The name of an individual repo"
   .option "-i, --include <include>", "YAML file containing repos to include"
   .option "-x, --exclude <exclude>", "YAML file containing repos to exclude"
   .option "-d, --delete", "Delete tags"

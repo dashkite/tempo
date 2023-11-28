@@ -66,4 +66,8 @@ Repos =
     for repo in repos
       Repo.tag repo, tags
 
+  untag: ( repos, tags ) ->
+    for repo in repos
+      Repo.untag repo, tags
+
 export default Repos 

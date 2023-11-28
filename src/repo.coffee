@@ -22,4 +22,8 @@ Repo =
     repo.tags ?= []
     repo.tags = Array.from new Set [ repo.tags..., tags... ]
 
+  untag: ( repo, tags ) ->
+    if repo.tags?
+      repo.tags = repo.tags.filter ( tag ) -> !( tag in tags )
+
 export default Repo

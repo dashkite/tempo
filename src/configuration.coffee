@@ -66,6 +66,10 @@ Configuration =
           Object.assign _repo, repo
       Configuration.Repos.save _repos
 
+    find: ( name ) ->
+      repos = await Configuration.Repos.load()
+      repos.find ( repo ) -> repo.name == name
+
     list: ({ include, exclude, tags } = {}) ->
       repos = await Configuration.Repos.load()
       if include?

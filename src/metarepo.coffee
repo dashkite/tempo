@@ -79,9 +79,19 @@ Metarepo =
     else
       log.error "run script [ #{ command } ] not defined"
 
-  tag: ( tags, { include, exclude }) ->
-    repos = await Configuration.Repos.list { include, exclude }
-    Repos.tag repos, tags
-    Configuration.Repos.update repos
+  tag: ( tags, options ) ->
+    do ({ repo, include, exclude } = options ) ->
+      repos = if repo?
+        ignore [ "include", "exclude" ], 
+          { include, exclude }
+        [ await Configuration.Repos.find repo ]
+      else
+        ignore [ "repo" ], { repo }
+        await Configuration.Repos.list { include, exclude }
+      if options.delete
+        Repos.untag repos, tags
+      else
+        Repos.tag repos, tags
+      Configuration.Repos.update repos
 
 export default Metarepo
