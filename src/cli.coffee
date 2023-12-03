@@ -17,31 +17,31 @@ program
   .description "add a project to a metarepo"
   .alias "a"
   .argument "<repo>", "The relative path of the repo"
-  .action Metarepo.add
+  .action Command.wrap Metarepo.add
 
 program
   .command "remove"
   .description "aemove a project from a metarepo"
   .aliases [ "rm", "del", "delete" ]
   .argument "<repo>", "The relative path of the repo"
-  .action Metarepo.remove
+  .action Command.wrap Metarepo.remove
   
 program
   .command "clone"
   .description "clone a metarepo"
   .argument "<metarepo>", "The relative path of the repo"
-  .action Metarepo.clone
+  .action Command.wrap Metarepo.clone
 
 program
   .command "sync"
   .description "sync a metarepo with remote"
-  .action Metarepo.sync
+  .action Command.wrap Metarepo.sync
 
 program
   .command "import"
   .description "import respositories from a list"
   .argument "<path>", "The path of the import file"
-  .action Metarepo.import
+  .action Command.wrap Metarepo.import
 
 program
   .command "exec"
@@ -49,33 +49,45 @@ program
   .option "-i, --include <include>", "YAML file containing repos to include"
   .option "-x, --exclude <exclude>", "YAML file containing repos to exclude"
   .option "-t, --tags <tags>", "Tags to include, separated by +"
-  .option "-s, --serial", "Run command for each repo serially", false
-  .option "-g, --groups <groups>", "YAML file containing grouped repos"
+  .option "-s, --serial", "Run command for each repo serially"
+  .option "-P, --no-progress", "Don't show progress bar"
+  .option "-v, --verbose", "Perform debug logging"
+  .option "-l, --logfile <filename>", "Stream log to a file"
   .passThroughOptions()
   .argument "<command>", "The command to run"
   .argument "[arguments...]", "Arguments to pass, if any"
-  .action Metarepo.exec
+  .action Command.wrap Metarepo.exec
 
 program
   .command "run"
   .description "run a saved script"
-  .option "-i, --include <include>", "YAML file containing repos to include"
-  .option "-x, --exclude <exclude>", "YAML file containing repos to exclude"
+  .option "-i, --include <include>", "YAML or JSON file of repos to include"
+  .option "-x, --exclude <exclude>", "YAML or JSON file of repos to exclude"
   .option "-t, --tags <tags>", "Tags to include, separated by +"
-  .option "-s, --serial", "Run command for each repo serially", false
-  .option "-g, --groups <groups>", "YAML file containing grouped repos"
+  .option "-s, --serial", "Run command for each repo serially"
+  .option "-P, --no-progress", "Don't show progress bar"
+  .option "-v, --verbose", "Perform debug logging"
+  .option "-l, --logfile <filename>", "Stream log to a file"
   .argument "<script>", "The script to run"
   .argument "[arguments...]", "Arguments to pass, if any"
-  .action Metarepo.run
+  .action Command.wrap Metarepo.run
 
 program
   .command "tag"
-  .description "tag a repository"
-  .option "-r, --repo <name>", "The name of an individual repo"
-  .option "-i, --include <include>", "YAML file containing repos to include"
-  .option "-x, --exclude <exclude>", "YAML file containing repos to exclude"
-  .option "-d, --delete", "Delete tags"
+  .description "add tags to a repository"
+  .option "-r, --repo <repos...>", "The name of an individual repo"
+  .option "-i, --include <include>", "YAML or JSON file of repos to include"
+  .option "-x, --exclude <exclude>", "YAML or JSON file of repos to exclude"
   .argument "<tags...>", "The tags to apply to a set of repos"
-  .action Metarepo.tag
+  .action Command.wrap Metarepo.tag
+
+program
+  .command "untag"
+  .description "remove tags from a repository"
+  .option "-r, --repo <repos...>", "The name of an individual repo"
+  .option "-i, --include <include>", "YAML or JSON file of repos to include"
+  .option "-x, --exclude <exclude>", "YAML or JSON file of repos to exclude"
+  .argument "<tags...>", "The tags to apply to a set of repos"
+  .action Command.wrap Metarepo.tag
 
 program.parseAsync()

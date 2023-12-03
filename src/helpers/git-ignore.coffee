@@ -1,16 +1,13 @@
-import FS from "node:fs/promises"
+import Zephyr from "@dashkite/zephyr"
 
 GitIgnore =
 
   load: ->
-    try
-      text = await FS.readFile ".gitignore", "utf8"
-    catch
-      text = ""
+    text = await Zephyr.read ".gitignore"
     new Set text.split "\n"
 
   save: ( ignored ) ->
-    FS.writeFile ".gitignore",
+    Zephyr.write ".gitignore", 
       Array
         .from ignored
         .join "\n"
@@ -24,8 +21,6 @@ GitIgnore =
     ignored = await GitIgnore.load()
     ignored.delete name
     GitIgnore.save ignored
-
-  configure: -> GitIgnore.add ".tempo"
   
-
+export { GitIgnore }
 export default GitIgnore

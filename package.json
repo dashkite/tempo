@@ -32,7 +32,7 @@
   "dependencies": {
     "@dashkite/joy": "^0.3.16",
     "@dashkite/katana": "0.4.8",
-    "chalk": "^4.1.2",
+    "@dashkite/zephyr": "^0.1.0",
     "commander": "^10.0.0",
     "execa": "^5.1.1",
     "js-yaml": "^4.1.0",
