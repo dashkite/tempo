@@ -1,4 +1,4 @@
-import * as log from "@dashkite/kaiko"
+import log from "@dashkite/kaiko"
 import * as TK from "terminal-kit"
 
 colors =

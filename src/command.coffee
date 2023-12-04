@@ -1,6 +1,15 @@
+import * as Fn from "@dashkite/joy/function"
 import { generic } from "@dashkite/joy/generic"
 import * as Type from "@dashkite/joy/type"
 import Progress from "./helpers/progress"
+import log from "@dashkite/kaiko"
+import "./logging"
+
+# TODO find a home for this
+has = ( keys ) -> 
+  if !( Type.isArray keys )
+    keys = [ keys ]
+  ( value ) -> keys.every ( key ) -> value[ key ]?
 
 Command =
 
@@ -11,29 +20,34 @@ Command =
       default: Fn.identity
 
     generic process, 
-      Type.isReactor,
+      ( has "reactor" ),
       ( options, { length, reactor }) ->
 
         # set up progress bar
         if options.progress
           progress = Progress.make count: length
-          progress.set 0
-        else
-          progress = set: ->
 
         for await result from reactor
-          do progress.increment
+          if options.progress
+            do progress.increment
+
+        return # don't return the comprehension
+    
+    process
 
   wrap: ( handler ) ->
-    ( args..., options ) ->
+    # ignore the commander object itself
+    ( args..., options, _ ) ->
 
       # configure logging
       if options.verbose
-        log.level "debug"
+        log.level = "debug"
       else
-        log.level "info"
+        log.level = "info"
 
       Command.process options, await handler.apply null, args
 
       if options.logfile?
         log.write FS.createWriteStream options.logfile    
+
+export default Command

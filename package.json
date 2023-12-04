@@ -30,7 +30,9 @@
   },
   "homepage": "https://github.com/dashkite/tempo#readme",
   "dependencies": {
+    "@dashkite/bake": "^0.0.6",
     "@dashkite/joy": "^0.3.16",
+    "@dashkite/kaiko": "^0.3.0",
     "@dashkite/katana": "0.4.8",
     "@dashkite/zephyr": "^0.1.0",
     "commander": "^10.0.0",

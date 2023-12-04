@@ -1,9 +1,40 @@
 import FS from "node:fs/promises"
 import Path from "node:path"
+import Crypto from "node:crypto"
+import { convert } from "@dashkite/bake"
 import log from "@dashkite/kaiko"
 
-import { Repo, Repos, GitIgnore,
-  Scripts, FSX } from "./helpers"
+import { Repo, Repos, GitIgnore, Script, FSX } from "./helpers"
+
+truncate = ( length, text ) -> text[ 0...length ]
+
+# non-destructive sort
+sort = ( array ) -> [ array... ].sort()
+
+Key =
+
+  hash: ( vector ) ->
+    truncate 8, convert from: "bytes", to: "base36",
+      new Uint8Array do ->
+        Crypto
+          .createHash "md5"
+          .update JSON.stringify vector
+          .digest()
+          .buffer
+
+  make: ({ script, command, args, tags, include, exclude }) ->
+    vector = []
+    if script?
+      vector.push "script"
+      vector.push script
+    else
+      vector.push "command"
+      vector.push command
+
+    vector.push args
+    vector.push sort include
+    vector.push sort exclude
+    Key.hash vector
 
 Metarepo =
 
@@ -47,7 +78,7 @@ Metarepo =
 
   sync: ->
     await Script.run "git pull"
-    repos = await Repos.list()
+    repos = await Repos.load()
     for { organization, name } in repos
       unless await FSX.isDirectory Metarepo.path name
         git = Metarepo.git { organization, name }
@@ -57,10 +88,10 @@ Metarepo =
           await run "ln -sf #{ path }"
         catch error
           log.error error
-    do Metarepo.prune
+    # do Metarepo.prune
 
   prune: ->
-    for path in await FS.ls Metarepo.root
+    for path in await FS.readdir Metarepo.root
       if await FSX.isDirectory path
         name = Path.basename path
         if !( repo = await Repos.get name )?
@@ -81,13 +112,15 @@ Metarepo =
 
   exec: ( command, args, { include, exclude, tags, options...}) ->
     repos = await Repos.find { include, exclude, tags }
+    key = Key.make { command, args, include, exclude, tags }
     length: repos.length
-    reactor: Repos.run repos, { command, args, options... }
+    reactor: Repos.run repos, { command, args, key, options... }
 
   run: ( script, args, { include, exclude, tags, options...}) ->
-    repos = await Repos.find { include, exclude, tags }
+    repos = await Repos.find { script, include, exclude, tags }
+    key = Key.make { script, args, include, exclude, tags }
     length: repos.length
-    reactor: Repos.run repos, { script, args, options... }
+    reactor: Repos.run repos, { script, args, key, options... }
 
   tag: ( tags, { repos, include, exclude }) ->
     repos = await Repos.find { repos, include, exclude }

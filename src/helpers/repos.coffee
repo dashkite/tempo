@@ -27,7 +27,7 @@ Repos =
 
     find = generic
       name: "Repos.find"
-      default: Repos.load
+      default: -> do Repos.load
 
     generic find,
       ( has "include" ),
@@ -36,7 +36,7 @@ Repos =
           include = await Zephyr.read exclude
         Fn.flow [
           -> Repos.find options
-          It.select ( repo ) -> repo.name in include )
+          It.select ( repo ) -> repo.name in include
         ]          
 
     generic find,
@@ -180,3 +180,6 @@ Repo =
       false
     catch
       true
+
+
+export { Repos, Repo }

@@ -1,7 +1,8 @@
 import FS from "node:fs"
 import Path from "node:path"
-import { program, Command } from "commander"
+import { program } from "commander"
 import Metarepo from "./metarepo"
+import Command from "./command"
 
 program
   # TODO get version from package.json
@@ -51,8 +52,6 @@ program
   .option "-t, --tags <tags>", "Tags to include, separated by +"
   .option "-s, --serial", "Run command for each repo serially"
   .option "-P, --no-progress", "Don't show progress bar"
-  .option "-v, --verbose", "Perform debug logging"
-  .option "-l, --logfile <filename>", "Stream log to a file"
   .passThroughOptions()
   .argument "<command>", "The command to run"
   .argument "[arguments...]", "Arguments to pass, if any"
@@ -66,8 +65,6 @@ program
   .option "-t, --tags <tags>", "Tags to include, separated by +"
   .option "-s, --serial", "Run command for each repo serially"
   .option "-P, --no-progress", "Don't show progress bar"
-  .option "-v, --verbose", "Perform debug logging"
-  .option "-l, --logfile <filename>", "Stream log to a file"
   .argument "<script>", "The script to run"
   .argument "[arguments...]", "Arguments to pass, if any"
   .action Command.wrap Metarepo.run
@@ -89,5 +86,10 @@ program
   .option "-x, --exclude <exclude>", "YAML or JSON file of repos to exclude"
   .argument "<tags...>", "The tags to apply to a set of repos"
   .action Command.wrap Metarepo.tag
+
+for command in program.commands
+  command
+    .option "-v, --verbose", "Perform debug logging"
+    .option "-l, --logfile <filename>", "Stream log to a file"
 
 program.parseAsync()

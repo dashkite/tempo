@@ -12,7 +12,6 @@ Progress =
     TK.terminal "\n"
 
     increment: -> bar.update ++counter / count
-    set: ( counter ) -> bar.update counter / count
 
 export { Progress }
 export default Progress

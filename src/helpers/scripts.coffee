@@ -2,6 +2,7 @@ import Zephyr from "@dashkite/zephyr"
 import { command as exec } from "execa"
 import { generic } from "@dashkite/joy/generic"
 import * as Type from "@dashkite/joy/type"
+import log from "@dashkite/kaiko"
 
 Scripts =
 
@@ -22,7 +23,7 @@ Script =
           throw new Error "missing positional argument $#{i}"
       .replaceAll /\$@/g, -> args.join " "
 
-  run: ( command, { options }) ->
+  run: ( command, options ) ->
     log.debug run: { command, options }
     result = await exec command, 
       { stdout: "pipe", stderr: "pipe", shell: true, options... }
@@ -31,5 +32,5 @@ Script =
       log.debug { command, result }
       throw new Error result.shortMessage
 
-
+export { Scripts, Script }
 
