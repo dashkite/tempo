@@ -44,7 +44,7 @@ Command =
           do progress.stop
 
         log.info 
-          force: true
+          console: true
           message: "succeeded: #{ succeeded },
             failed: #{ length - succeeded }"
 
@@ -63,7 +63,7 @@ Command =
       log.observe printer quiet: options.progress
 
       log.info 
-        force: true
+        console: true
         message: "run at #{( dayjs().format "ddd MMM DD h:mm:ss A" )}"
 
       duration = await benchmark "tempo", ->
@@ -71,7 +71,7 @@ Command =
           await handler.apply null, [ args..., options ]
       
       log.info 
-        force: true
+        console: true
         message: "finished in #{ duration}s"
 
       if options.logfile?

@@ -124,7 +124,7 @@ Repos =
         ( failures[ repo.name ] = 0 ) for repo in repos  
 
         log.info 
-          force: true
+          console: true
           message: "Running [ #{ Text.elide 30, "...", command } ]"
           command: command
 
@@ -134,6 +134,11 @@ Repos =
           for subgroup from partition batch, group
             promised = do ->
               for repo in subgroup
+                # returns success boolean
+                # which we yield below
+                # we can't yield the counter directly
+                # because we can't guarantee the order
+                # in which the promises resolve
                 do ( repo ) ->
                   log.debug { repo }
                   if failures[ repo ] <= retries
@@ -158,6 +163,7 @@ Repos =
                       message: "Too many failures"
                     false
 
+            # yield success boolean
             for promise in promised
               yield await promise
 
