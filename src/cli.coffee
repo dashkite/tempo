@@ -4,6 +4,10 @@ import { program } from "commander"
 import Metarepo from "./metarepo"
 import Command from "./command"
 
+Tags =
+  
+  parse: ( tags ) -> tags.split "+"
+
 program
   # TODO get version from package.json
   .version do ({ path, json, pkg } = {}) ->
@@ -49,7 +53,7 @@ program
   .description "run a command across repos"
   .option "-i, --include <include>", "YAML file containing repos to include"
   .option "-x, --exclude <exclude>", "YAML file containing repos to exclude"
-  .option "-t, --tags <tags>", "Tags to include, separated by +"
+  .option "-t, --tags <tags>", "Tags to include, separated by +", Tags.parse
   .option "-s, --serial", "Run command for each repo serially"
   .option "-P, --no-progress", "Don't show progress bar"
   .passThroughOptions()
@@ -62,7 +66,7 @@ program
   .description "run a saved script"
   .option "-i, --include <include>", "YAML or JSON file of repos to include"
   .option "-x, --exclude <exclude>", "YAML or JSON file of repos to exclude"
-  .option "-t, --tags <tags>", "Tags to include, separated by +"
+  .option "-t, --tags <tags>", "Tags to include, separated by +", Tags.parse
   .option "-s, --serial", "Run command for each repo serially"
   .option "-P, --no-progress", "Don't show progress bar"
   .argument "<script>", "The script to run"

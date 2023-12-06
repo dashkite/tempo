@@ -8,10 +8,15 @@ Progress =
       eta: true
       barChar: "◼︎"
       barHeadChar: "◼︎"
+      syncMode: true
     counter = 0
-    TK.terminal "\n"
 
+    
+    start: -> bar.update 0
     increment: -> bar.update ++counter / count
+    stop: -> 
+      bar.stop()
+      TK.terminal "\n"
 
 export { Progress }
 export default Progress

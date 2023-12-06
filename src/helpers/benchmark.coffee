@@ -1,4 +1,5 @@
 import { performance as Performance } from "node:perf_hooks"
+import { round } from "./format"
 
 benchmark = ( name, f ) ->
   Performance.mark "#{ name }-start"
@@ -10,3 +11,4 @@ benchmark = ( name, f ) ->
   ( round duration / 1000 )
 
 export { benchmark }
+export default benchmark

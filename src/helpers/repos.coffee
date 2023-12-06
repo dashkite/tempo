@@ -1,8 +1,11 @@
 import * as Fn from "@dashkite/joy/function"
-import * as Type from "@dashkite/joy/type"
 import * as It from "@dashkite/joy/iterable"
+import * as Type from "@dashkite/joy/type"
+import * as Text from "@dashkite/joy/text"
 import { generic } from "@dashkite/joy/generic"
 import Zephyr from "@dashkite/zephyr"
+import { Scripts, Script } from "./scripts"
+import log from "@dashkite/kaiko"
 
 has = ( keys ) -> 
   if !( Type.isArray keys )
@@ -14,6 +17,15 @@ push = ( stack, value ) -> stack.unshift value ; value
 remove = ( list, target ) ->
   if ( index = list.indexOf target ) > -1
     list.splice index, 1
+
+slice = ( stack, start, skip ) ->
+  stack.slice start, start + skip
+
+partition = ( size, list ) ->
+  i = 0
+  j = Math.ceil list.length / size
+  while i < j
+    yield slice list, ( i++ * size ), size
 
 Repos =
 
@@ -33,14 +45,14 @@ Repos =
       ( has "include" ),
       ({ include, options... }) ->
         if Type.isString
-          include = await Zephyr.read exclude
-        Fn.flow [
+          include = await Zephyr.read include
+        do Fn.flow [
           -> Repos.find options
           It.select ( repo ) -> repo.name in include
-        ]          
+        ]
 
     generic find,
-      ( has "repos" ),
+      ( has [ "repos", "include" ] ),
       ({ repos, include }) ->
         result = await Repos.find include: repos
         if include?
@@ -48,23 +60,22 @@ Repos =
         result
 
     generic find,
-      ( has "tag" ),
-      ({ tag, options... }) ->
-        Fn.flow [
+      ( has "tags" ),
+      ({ tags, options... }) ->
+        do Fn.flow [
           -> Repos.find options
-          It.filter ( repo ) -> 
-            repo.tags? && ( tag in repo.tags )
+          It.select ( repo ) -> 
+            repo.tags? && ( tags.some ( tag ) -> tag in repo.tags )
         ]
 
     generic find,
       ( has "exclude" ),
       ({ exclude, options... }) ->
         if Type.isString
-          exclude = await Zephyr.read exclude          
-        Fn.flow [
+          exclude = await Zephyr.read exclude
+        do Fn.flow [
           -> Repos.find options
-          It.filter ( repo ) -> 
-            !( repo.name in exclude )
+          It.select ( repo ) -> !( repo.name in exclude )
         ]
 
     find
@@ -81,11 +92,12 @@ Repos =
 
         if retry
           memos = await Zephyr.read ".tempo/memos.json"
+          memos ?= {}
           groups = memos[ key ]
 
         # default the trivial group
-        groups ?= [( state.repos.map ({ name }) -> name )]
-        
+        groups ?= [( repos.map ({ name }) -> name )]
+
         # check for missing repos
         # add to first group if we find any
         for repo in repos
@@ -93,57 +105,78 @@ Repos =
           unless found
             push groups[ 0 ], repo.name
         
-        # remove repos that are not in the target repos list
-        groups = do ->
-          for group in groups
-            removals = []
-            for name in group
-              found = ( repos.find ( repo ) -> repo.name = name )?
-              unless found
-                push removals, name
-            group.filter ( name ) -> !( name in removals )
+  
+        groups = groups
+          # remove repos that are not in the target repos list
+          .map ( group ) ->
+            group.filter ( name ) ->
+              ( repos.find ( repo ) -> repo.name == name )?
+          # remove empty groups since they will halt the run loop
+          .filter ( group ) -> group.length != 0
 
         index = 0
-        built = 0
+        succeeded = 0
         before = -1
         retries = if retry then 6 else 0
-        failures = {}
-        for name in repos
-          failures[ name ] = 0
 
-        while ( group = groups[ index ])? && ( built != before )
-          before = built
+        # initialize failures lookup
+        failures = {}
+        ( failures[ repo.name ] = 0 ) for repo in repos  
+
+        log.info 
+          force: true
+          message: "Running [ #{ Text.elide 30, "...", command } ]"
+          command: command
+
+        while ( group = groups[ index ])? && ( succeeded != before )
+          before = succeeded
           failed = []
-          for subgroup from batches group, batch
-            log.debug { subgroup }
-            await Promise.all do ->
+          for subgroup from partition batch, group
+            promised = do ->
               for repo in subgroup
                 do ( repo ) ->
                   log.debug { repo }
                   if failures[ repo ] <= retries
                     try
-                      await Script.sh command, cwd: repo
-                      yield repo
-                    catch
-                      log.debug failed: repo
-                      push failed, repo
+                      result = await Script.run command, cwd: repo
+                      log.debug { repo: repo, result }
+                      before = succeeded
+                      succeeded++
+                      true
+                    catch error
+                      log.error
+                        repo: repo
+                        message: error.message
+                        error: error
+                      push failed, repo if retry
+                      false
                   else
-                    log.warn "Too many failures running [ #{ command } ]
-                      for repo [ #{ repo } ]"
+                    log.warn
+                      repo: repo 
+                      failures: failures[ repo ]
+                      retries: retries
+                      message: "Too many failures"
+                    false
+
+            for promise in promised
+              yield await promise
 
           # demote failures
-          if failed.length > 0
-            log.debug { failures }
+          if succeeded != before && failed.length > 0
             groups[ index + 1 ] ?= []
             for repo in failed
-              log.debug demoting: repo
+              log.debug {
+                message: "demoting repo"
+                repo
+              }
               failures[ repo ]++
               remove group, repo
               push groups[ index + 1 ], repo
+
           index++
 
-        Zephyr.update ".tempo/memos.json", ( memos ) ->
-          memos[ key ] = groups
+        memos[ key ] = groups
+        Zephyr.write ".tempo/memos.json", memos
 
     generic run, 
       ( has "serial" ),
@@ -151,11 +184,11 @@ Repos =
         Repos.run { batch: 1, options... }
 
     generic run, 
-      ( has [ "args", "command" ]),
+      ( has [ "command", "args"  ]),
       ({ command, args, options... }) ->
         if Type.isObject command
-          { command, _options... } = command
-          options = { options..., _options... }
+          { command } = command
+          options = { options..., command.options... }
         Repos.run {
           command: Script.expand command, args
           options...
@@ -165,7 +198,7 @@ Repos =
       ( has "script" ),
       ({ script, options... }) ->
         Repos.run {
-          command: await Script.find script
+          command: await Scripts.find script
           options...
         }
 

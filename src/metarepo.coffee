@@ -23,6 +23,9 @@ Key =
           .buffer
 
   make: ({ script, command, args, tags, include, exclude }) ->
+    tags ?= []
+    include ?= []
+    exclude ?= []
     vector = []
     if script?
       vector.push "script"
@@ -32,6 +35,7 @@ Key =
       vector.push command
 
     vector.push args
+    vector.push sort tags
     vector.push sort include
     vector.push sort exclude
     Key.hash vector
@@ -114,13 +118,13 @@ Metarepo =
     repos = await Repos.find { include, exclude, tags }
     key = Key.make { command, args, include, exclude, tags }
     length: repos.length
-    reactor: Repos.run repos, { command, args, key, options... }
+    reactor: await Repos.run { repos, command, args, key, options... }
 
   run: ( script, args, { include, exclude, tags, options...}) ->
     repos = await Repos.find { script, include, exclude, tags }
     key = Key.make { script, args, include, exclude, tags }
     length: repos.length
-    reactor: Repos.run repos, { script, args, key, options... }
+    reactor: await Repos.run { repos, script, args, key, options... }
 
   tag: ( tags, { repos, include, exclude }) ->
     repos = await Repos.find { repos, include, exclude }

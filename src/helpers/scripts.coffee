@@ -4,6 +4,11 @@ import { generic } from "@dashkite/joy/generic"
 import * as Type from "@dashkite/joy/type"
 import log from "@dashkite/kaiko"
 
+truncate = ( text ) ->
+  if text.length > 10
+    text[ ...10 ] + "..."
+  else text
+
 Scripts =
 
   load: -> Zephyr.read ".tempo/scripts.yaml"
@@ -25,12 +30,13 @@ Script =
 
   run: ( command, options ) ->
     log.debug run: { command, options }
-    result = await exec command, 
-      { stdout: "pipe", stderr: "pipe", shell: true, options... }
-    log.debug { command, result }
-    if result.exitCode != 0
+    try
+      result = await exec command, 
+        { stdout: "pipe", stderr: "pipe", shell: true, options... }
       log.debug { command, result }
-      throw new Error result.shortMessage
+    catch error
+      log.error { command, error }
+      throw new Error "command failed"
 
 export { Scripts, Script }
 

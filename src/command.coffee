@@ -1,9 +1,12 @@
+import FS from "node:fs"
+import dayjs from "dayjs"
 import * as Fn from "@dashkite/joy/function"
 import { generic } from "@dashkite/joy/generic"
 import * as Type from "@dashkite/joy/type"
-import Progress from "./helpers/progress"
 import log from "@dashkite/kaiko"
-import "./logging"
+import Progress from "./helpers/progress"
+import printer from "./helpers/logging"
+import benchmark from "./helpers/benchmark"
 
 # TODO find a home for this
 has = ( keys ) -> 
@@ -20,19 +23,31 @@ Command =
       default: Fn.identity
 
     generic process, 
-      ( has "reactor" ),
+      Type.isObject,
+      ( has [ "length", "reactor" ] ),
       ( options, { length, reactor }) ->
 
         # set up progress bar
         if options.progress
           progress = Progress.make count: length
+          do progress.start
 
-        for await result from reactor
-          if options.progress
-            do progress.increment
+        succeeded = 0
+        for await success from reactor
+          if success
+            succeeded++
+            if options.progress
+              do progress.increment
+            
 
-        return # don't return the comprehension
-    
+        if options.progress
+          do progress.stop
+
+        log.info 
+          force: true
+          message: "succeeded: #{ succeeded },
+            failed: #{ length - succeeded }"
+
     process
 
   wrap: ( handler ) ->
@@ -45,9 +60,21 @@ Command =
       else
         log.level = "info"
 
-      Command.process options, await handler.apply null, args
+      log.observe printer quiet: options.progress
+
+      log.info 
+        force: true
+        message: "run at #{( dayjs().format "ddd MMM DD h:mm:ss A" )}"
+
+      duration = await benchmark "tempo", ->
+        await Command.process options, 
+          await handler.apply null, [ args..., options ]
+      
+      log.info 
+        force: true
+        message: "finished in #{ duration}s"
 
       if options.logfile?
-        log.write FS.createWriteStream options.logfile    
+        log.write FS.createWriteStream options.logfile
 
 export default Command
