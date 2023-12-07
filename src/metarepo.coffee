@@ -5,6 +5,7 @@ import { convert } from "@dashkite/bake"
 import log from "@dashkite/kaiko"
 
 import { Repo, Repos, GitIgnore, Script, FSX } from "./helpers"
+import Progress from "./helpers/progress"
 
 truncate = ( length, text ) -> text[ 0...length ]
 
@@ -42,10 +43,14 @@ Key =
 
 Metarepo =
 
-  root: ".tempo"
+  Paths:
 
-  path: ( name ) ->
-    Path.join Metarepo.root, name
+    root: ".tempo"
+
+    repos: Path.join ".tempo", "repos"
+
+  resolve: ( name ) ->
+    Path.join Metarepo.Paths.repos, name
 
   git: ({ organization, name }) ->
     "git@github.com:#{ organization }/#{ name }.git"
@@ -54,7 +59,6 @@ Metarepo =
     { organization, name } = Repo.parse repo
     try
       await Repos.add { organization, name }
-      await GitIgnore.add ".tempo"
       await Metarepo.sync()
     catch error
       log.error error
@@ -65,49 +69,66 @@ Metarepo =
     try
       { organization, name } = Repo.parse repo
       Repos.remove { organization, name }
-      await FS.rm 
-      await FS.rm name, recursive: true
+      await FS.rm ( Metarepo.resolve name ), recursive: true
+      await FS.rm name
     catch error
       log.error error
   
-  clone: ( metarepo ) ->
+  clone: ( metarepo, { branch }) ->
     { organization, name } = Repo.parse metarepo
     git = Metarepo.git { organization, name }
     await Script.run "git clone #{ git }"
     cwd = process.cwd()
     process.chdir name
-    await FS.mkdir Metarepo.root, recursive: true
+    await FS.mkdir Metarepo.Paths.repos, recursive: true
+    if branch?
+      await Script.run "git switch #{ branch }"
     await Metarepo.sync()
     process.chdir cwd
 
   sync: ->
     await Script.run "git pull"
+    await GitIgnore.add Metarepo.Paths.repos
+    # TODO handle case where there's no repos.yaml
     repos = await Repos.load()
+    progress = Progress.make 
+      title: "Cloning Repos"
+      count: repos.length
+    do progress.start
     for { organization, name } in repos
-      unless await FSX.isDirectory Metarepo.path name
+      unless await FSX.isDirectory Metarepo.resolve name
         git = Metarepo.git { organization, name }
-        path = Metarepo.path name
+        path = Metarepo.resolve name
         try
-          await Script.run "git clone #{ git } #{ path }", cwd: name
-          await run "ln -sf #{ path }"
+          await Script.run "git clone #{ git } #{ path }"
+          await Script.run "ln -sf #{ path }"
         catch error
           log.error error
-    # do Metarepo.prune
+      do progress.increment
+    do progress.stop
+    do Metarepo.prune
 
   prune: ->
-    for path in await FS.readdir Metarepo.root
+    paths = await FS.readdir Metarepo.Paths.root
+    progress = Progress.make
+      title: "Pruning Repos"
+      count: paths.length
+    do progress.start
+    for path in paths
       if await FSX.isDirectory path
         name = Path.basename path
         if !( repo = await Repos.get name )?
           if !( await Repo.changed name )
             try
-              await FS.rm ( Metarepo.path path ), recursive: true
+              await FS.rm path, recursive: true
               await FS.rm path
             catch error
               log.error error
           else
             log.warn "Unable to prune #{ name }
               because it has changes"
+      do progress.increment
+    do progress.stop
 
   import: ( path ) ->
     repos = await Zephyr.read path

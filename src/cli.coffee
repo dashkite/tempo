@@ -35,6 +35,7 @@ program
   .command "clone"
   .description "clone a metarepo"
   .argument "<metarepo>", "The relative path of the repo"
+  .option "-b, --branch <branch>", "Branch name to use"
   .action Command.wrap Metarepo.clone
 
 program
@@ -95,5 +96,6 @@ for command in program.commands
   command
     .option "-v, --verbose", "Perform debug logging"
     .option "-l, --logfile <filename>", "Stream log to a file"
+    .option "-P, --no-progress", "Don't show progress bar"
 
 program.parseAsync()

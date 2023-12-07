@@ -1,11 +1,13 @@
+import Path from "node:path"
 import * as Fn from "@dashkite/joy/function"
 import * as It from "@dashkite/joy/iterable"
 import * as Type from "@dashkite/joy/type"
 import * as Text from "@dashkite/joy/text"
 import { generic } from "@dashkite/joy/generic"
 import Zephyr from "@dashkite/zephyr"
-import { Scripts, Script } from "./scripts"
 import log from "@dashkite/kaiko"
+import Progress from "./progress"
+import { Scripts, Script } from "./scripts"
 
 has = ( keys ) -> 
   if !( Type.isArray keys )
@@ -29,7 +31,7 @@ partition = ( size, list ) ->
 
 Repos =
 
-  load: -> Zephyr.read ".tempo/repos.yaml"
+  load: -> Zephyr.read Path.join ".tempo", "repos.yaml"
 
   get: ( name ) ->
     repos = await do Repos.load
@@ -128,44 +130,36 @@ Repos =
           message: "Running [ #{ Text.elide 30, "...", command } ]"
           command: command
 
+        progress = Progress.make count: repos.length
+        do progress.start
+
         while ( group = groups[ index ])? && ( succeeded != before )
           before = succeeded
           failed = []
           for subgroup from partition batch, group
-            promised = do ->
+            await Promise.all do ->
               for repo in subgroup
-                # returns success boolean
-                # which we yield below
-                # we can't yield the counter directly
-                # because we can't guarantee the order
-                # in which the promises resolve
                 do ( repo ) ->
                   log.debug { repo }
                   if failures[ repo ] <= retries
                     try
                       result = await Script.run command, cwd: repo
                       log.debug { repo: repo, result }
-                      before = succeeded
                       succeeded++
-                      true
+                      do progress.increment
                     catch error
                       log.error
                         repo: repo
                         message: error.message
                         error: error
                       push failed, repo if retry
-                      false
                   else
-                    log.warn
+                    log.error
+                      console: true
                       repo: repo 
                       failures: failures[ repo ]
                       retries: retries
                       message: "Too many failures"
-                    false
-
-            # yield success boolean
-            for promise in promised
-              yield await promise
 
           # demote failures
           if succeeded != before && failed.length > 0
@@ -180,6 +174,13 @@ Repos =
               push groups[ index + 1 ], repo
 
           index++
+
+        do progress.stop
+
+        log.info 
+          console: true
+          message: "succeeded: #{ succeeded },
+            failed: #{ repos.length - succeeded }"
 
         memos[ key ] = groups
         Zephyr.write ".tempo/memos.json", memos
@@ -211,6 +212,10 @@ Repos =
     run
 
 Repo =
+
+  parse: ( specifier ) ->
+    [ organization, name ] = specifier.split "/"
+    { organization, name }
 
   changed: ( name ) ->
     try

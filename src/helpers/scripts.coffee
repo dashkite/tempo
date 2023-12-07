@@ -1,3 +1,4 @@
+import Path from "node:path"
 import Zephyr from "@dashkite/zephyr"
 import { command as exec } from "execa"
 import { generic } from "@dashkite/joy/generic"
@@ -11,7 +12,7 @@ truncate = ( text ) ->
 
 Scripts =
 
-  load: -> Zephyr.read ".tempo/scripts.yaml"
+  load: -> Zephyr.read Path.join ".tempo", "scripts.yaml"
 
   find: ( name ) ->
     scripts = await do Scripts.load
@@ -36,6 +37,7 @@ Script =
       log.debug { command, result }
     catch error
       log.error { command, error }
+      console.log error
       throw new Error "command failed"
 
 export { Scripts, Script }

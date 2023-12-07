@@ -23,7 +23,9 @@ print = ({ level, data }) ->
 
 printer = ({ quiet }) ->
   if quiet
-    ( event ) -> ( print event ) if event.data.console
+    ( event ) -> 
+      if event.data.console
+        print event
   else print
 
 export default printer
