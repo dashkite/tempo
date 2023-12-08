@@ -77,7 +77,7 @@ program
 program
   .command "tag"
   .description "add tags to a repository"
-  .option "-r, --repo <repos...>", "The name of an individual repo"
+  .option "-r, --repos <repos...>", "The name of an individual repo"
   .option "-i, --include <include>", "YAML or JSON file of repos to include"
   .option "-x, --exclude <exclude>", "YAML or JSON file of repos to exclude"
   .argument "<tags...>", "The tags to apply to a set of repos"
@@ -86,16 +86,16 @@ program
 program
   .command "untag"
   .description "remove tags from a repository"
-  .option "-r, --repo <repos...>", "The name of an individual repo"
+  .option "-r, --repos <repos...>", "The name of an individual repo"
   .option "-i, --include <include>", "YAML or JSON file of repos to include"
   .option "-x, --exclude <exclude>", "YAML or JSON file of repos to exclude"
   .argument "<tags...>", "The tags to apply to a set of repos"
-  .action Command.wrap Metarepo.tag
+  .action Command.wrap Metarepo.untag
 
 for command in program.commands
   command
     .option "-v, --verbose", "Perform debug logging"
-    .option "-l, --logfile <filename>", "Stream log to a file"
+    .option "-l, --logfile <filename>", "Override the default logfile"
     .option "-P, --no-progress", "Don't show progress bar"
 
 program.parseAsync()

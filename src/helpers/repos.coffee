@@ -29,13 +29,43 @@ partition = ( size, list ) ->
   while i < j
     yield slice list, ( i++ * size ), size
 
-Repos =
+Memos =
 
-  load: -> Zephyr.read Path.join ".tempo", "repos.yaml"
+  path: Path.join ".tempo", "memos.json"
+
+Repos =
+  
+  path: Path.join ".tempo", "repos.yaml"
+
+  initialize: ->
+    Zephyr.update Repos.path, ( repos ) -> repos ?= []
+
+  load: -> Zephyr.read Repos.path
 
   get: ( name ) ->
     repos = await do Repos.load
     repos.find ( repo ) -> repo.name == name
+
+  add: ({ organization, name }) ->
+    Zephyr.update Repos.path, ( repos ) ->
+      repos.push { organization, name }
+      repos
+
+  remove: ({ organization, name }) ->
+    Zephyr.update Repos.path, ( repos ) ->
+      repo = repos.find ( repo ) ->
+        repo.organization == organization &&
+          repo.name == name
+      remove repos, repo
+      repos
+
+  tag: ( repos, tags ) ->
+    for repo in repos
+      await Repo.tag repo, tags
+
+  untag: ( repos, tags ) ->
+    for repo in repos
+      await Repo.untag repo, tags
 
   find: do ({ find } = {}) ->
 
@@ -44,22 +74,27 @@ Repos =
       default: -> do Repos.load
 
     generic find,
-      ( has "include" ),
-      ({ include, options... }) ->
-        if Type.isString
-          include = await Zephyr.read include
+      ( has "repos" ),
+      ({ repos, options... }) -> 
         do Fn.flow [
           -> Repos.find options
-          It.select ( repo ) -> repo.name in include
+          It.select ( repo ) -> repo.name in repos
         ]
+        
+    generic find,
+      ( has "include" ),
+      ({ include, options... }) ->
+        repos = await Zephyr.read include
+        Repos.find { repos, options... }
 
     generic find,
       ( has [ "repos", "include" ] ),
       ({ repos, include }) ->
-        result = await Repos.find include: repos
-        if include?
-          result = result.concat await Repos.find { include }
-        result
+        do Fn.flow [
+          Repos.find include: repos
+          ( result ) -> 
+            result.concat await Repos.find { include }
+        ]
 
     generic find,
       ( has "tags" ),
@@ -73,8 +108,7 @@ Repos =
     generic find,
       ( has "exclude" ),
       ({ exclude, options... }) ->
-        if Type.isString
-          exclude = await Zephyr.read exclude
+        exclude = await Zephyr.read exclude
         do Fn.flow [
           -> Repos.find options
           It.select ( repo ) -> !( repo.name in exclude )
@@ -93,7 +127,7 @@ Repos =
         retry ?= true
 
         if retry
-          memos = await Zephyr.read ".tempo/memos.json"
+          memos = await Zephyr.read Memos.path
           memos ?= {}
           groups = memos[ key ]
 
@@ -217,6 +251,26 @@ Repo =
     [ organization, name ] = specifier.split "/"
     { organization, name }
 
+  same: ( a, b ) ->
+    a.organization == b.organization && a.name == b.name
+
+  save: ( repo ) ->
+    Zephyr.update Repos.path, ( repos ) ->
+      for _repo in repos      
+        if Repo.same _repo, repo
+          repo
+        else
+          _repo
+
+  tag: ( repo, tags ) ->
+    repo.tags = Array.from new Set [ repo.tags..., tags... ]
+    Repo.save repo
+
+  untag: ( repo, tags ) ->
+    repo.tags = do ->
+      tag for tag in repo.tags when !( tag in tags )
+    Repo.save repo
+
   changed: ( name ) ->
     try
       # returns non-zero status if there are changes in the repo
@@ -224,6 +278,5 @@ Repo =
       false
     catch
       true
-
 
 export { Repos, Repo }

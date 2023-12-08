@@ -1,3 +1,5 @@
+import FS from "node:fs/promises"
+import Path from "node:path"
 import * as TK from "terminal-kit"
 import chalk from "chalk"
 
@@ -21,12 +23,21 @@ print = ({ level, data }) ->
     text += space chalk[ colors[ level ]] message
     console[ level ] text
 
-printer = ({ quiet }) ->
-  if quiet
-    ( event ) -> 
-      if event.data.console
-        print event
-  else print
+Logger = 
 
-export default printer
-export { printer }
+  path: Path.join ".tempo", "logs"
+
+  initialize: -> FS.mkdir Logger.path, recursive: true
+
+  makeFile: ->
+    Path.join Logger.path, "#{ ( new Date ).toISOString() }.json"
+
+  printer: ({ quiet }) ->
+    if quiet
+      ( event ) -> 
+        if event.data.console
+          print event
+    else print
+
+export default Logger
+export { Logger }

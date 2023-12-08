@@ -4,7 +4,8 @@ import Crypto from "node:crypto"
 import { convert } from "@dashkite/bake"
 import log from "@dashkite/kaiko"
 
-import { Repo, Repos, GitIgnore, Script, FSX } from "./helpers"
+import { Repo, Repos, GitIgnore, 
+  Script, Scripts, Logger, FSX } from "./helpers"
 import Progress from "./helpers/progress"
 
 truncate = ( length, text ) -> text[ 0...length ]
@@ -49,6 +50,14 @@ Metarepo =
 
     repos: Path.join ".tempo", "repos"
 
+  initialize: ->
+    await FS.mkdir Metarepo.Paths.repos, recursive: true
+    await do Logger.initialize
+    await do Repos.initialize
+    await do Scripts.initialize
+    await GitIgnore.add Metarepo.Paths.repos
+    await GitIgnore.add Logger.path
+
   resolve: ( name ) ->
     Path.join Metarepo.Paths.repos, name
 
@@ -70,7 +79,7 @@ Metarepo =
       { organization, name } = Repo.parse repo
       Repos.remove { organization, name }
       await FS.rm ( Metarepo.resolve name ), recursive: true
-      await FS.rm name
+      await FS.unlink name
     catch error
       log.error error
   
@@ -80,7 +89,6 @@ Metarepo =
     await Script.run "git clone #{ git }"
     cwd = process.cwd()
     process.chdir name
-    await FS.mkdir Metarepo.Paths.repos, recursive: true
     if branch?
       await Script.run "git switch #{ branch }"
     await Metarepo.sync()
@@ -88,8 +96,6 @@ Metarepo =
 
   sync: ->
     await Script.run "git pull"
-    await GitIgnore.add Metarepo.Paths.repos
-    # TODO handle case where there's no repos.yaml
     repos = await Repos.load()
     progress = Progress.make 
       title: "Cloning Repos"

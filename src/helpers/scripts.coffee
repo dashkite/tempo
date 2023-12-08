@@ -12,7 +12,12 @@ truncate = ( text ) ->
 
 Scripts =
 
-  load: -> Zephyr.read Path.join ".tempo", "scripts.yaml"
+  path: Path.join ".tempo", "scripts.yaml"
+
+  initialize: ->
+    Zephyr.update Scripts.path, ( scripts ) -> scripts ?= {}
+
+  load: -> Zephyr.read Scripts.path
 
   find: ( name ) ->
     scripts = await do Scripts.load
