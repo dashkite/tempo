@@ -17,16 +17,19 @@ npm i -g @dashkite/tempo
 Usage: tempo [options] [command]
 
 Options:
+  -V, --version                            output the version number
   -h, --help                               display help for command
 
 Commands:
-  add|a <repo>                             Add a project to a metarepo
-  remove|rm <repo>                         Remove a project from a metarepo
-  clone <metarepo>                         Clone a metarepo
-  sync                                     Sync a metarepo with remote
-  import <path>                            Import respositories from a list
-  exec [options] <command> [arguments...]  Run a command across repos
-  run [options] <script> [arguments...]    Run a Tempo script
+  add|a [options] <repo>                   add a project to a metarepo
+  remove|rm [options] <repo>               remove a project from a metarepo
+  clone [options] <metarepo>               clone a metarepo
+  sync [options]                           sync a metarepo with remote
+  import [options] <path>                  import respositories from a list
+  exec [options] <command> [arguments...]  run a command across repos
+  run [options] <script> [arguments...]    run a saved script
+  tag [options] <tags...>                  add tags to a repository
+  untag [options] <tags...>                remove tags from a repository
   help [command]                           display help for command
 ```
 
@@ -54,7 +57,7 @@ You can add a bunch of repos all at once with `import`:
 tempo import repos.yaml
 ```
 
-The input file should contain a YAML encoded array of GitHub repo paths.
+The input file should contain a YAML formatted array of GitHub repo paths.
 
 ### Cloning A Metarepo
 
@@ -87,22 +90,27 @@ tempo run pull
 Both `run` and `exec` allow you to use files to target a subset of repos with the `targets` option:
 
 ```
-tempo run --targets core.yaml build
+tempo run --include core.yaml build
 ```
 
 Targeting files should be YAML arrays with only the repo names (not the relative path).
 
+You can also use tags to target repositories:
+
+```
+tempo run --tags module publish
+```
+
+Use the `tag` and `untag` commands to add and remove tags from repos. You can also target individual repositories with the `--repos` option or exclude them with `--exclude` which works like `--include`.
+
 ### Defining Run Scripts
 
-Run scripts are defined in `scripts` property of the `tempo.yaml` file. Positional arguments can be applied using `$` and index of the argument. You can reference all the arguments together with `$@`.
+Run scripts are defined in `scripts.yaml` file within the `.tempo` directory. Positional arguments can be applied using `$` and index of the argument. You can reference all the arguments together with `$@`.
 
 For example, to define a commit command that takes a commit message, you might have a `tempo.yaml` file that looks something like this:
 
 ```yaml
-scripts:
-  commit: git add -A . && git commit -m '$0'
-repos:
-  # ...
+commit: git add -A . && git commit -m '$0'
 ```
 
 ## Scenarios
@@ -128,8 +136,4 @@ However, sometimes the queries are more complex, in which case we can use `jq` o
 
 ## Roadmap
 
-- **Logging:** Allow output to be directed to a file so that the output for a given command and repo can be reviewed.
-- **Parallelism:** Allow for parallel execution of `run` or `exec` commands. Requires logging.
-- **Queries:** Integrate `jq`/`yq`-like support directly.
-- **Include/Exclude:** Allow direct targeting of commands.
-- **Script options:** Allow options to be specified and parameterized alongside scripts.
+- The project’s [GitHub issues page](https://github.com/dashkite/tempo/issues).

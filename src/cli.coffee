@@ -26,7 +26,7 @@ program
 
 program
   .command "remove"
-  .description "aemove a project from a metarepo"
+  .description "remove a project from a metarepo"
   .aliases [ "rm", "del", "delete" ]
   .argument "<repo>", "The relative path of the repo"
   .action Command.wrap Metarepo.remove
