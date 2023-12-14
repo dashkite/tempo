@@ -6,6 +6,7 @@ import * as Text from "@dashkite/joy/text"
 import { generic } from "@dashkite/joy/generic"
 import Zephyr from "@dashkite/zephyr"
 import log from "@dashkite/kaiko"
+import pLimit from "p-limit"
 import Progress from "./progress"
 import { Scripts, Script } from "./scripts"
 
@@ -161,41 +162,44 @@ Repos =
 
         log.info 
           console: true
-          message: "Running [ #{ Text.elide 30, "...", command } ]"
+          message: "Running [ #{ Text.elide 40, "...", command } ]"
           command: command
 
         progress = Progress.make count: repos.length
         do progress.start
 
+        limiter = pLimit batch
+
         while ( group = groups[ index ])? && ( succeeded != before )
           before = succeeded
           failed = []
-          pending = []
-          for repo in group
-            pending.push do ( repo ) ->
-              log.debug { repo }
-              if failures[ repo ] <= retries
-                try
-                  result = await Script.run command, cwd: repo
-                  log.debug { repo: repo, result }
-                  succeeded++
-                  do progress.increment
-                catch error
-                  log.error
-                    repo: repo
-                    message: error.message
-                    error: error
-                  push failed, repo if retry
-              else
-                log.error
-                  console: true
-                  repo: repo 
-                  failures: failures[ repo ]
-                  retries: retries
-                  message: "Too many failures"
-            unless pending.length < batch
-              promise = await Promise.any pending
-              remove pending, promise
+
+          pending = 
+            for repo in group
+              do ( repo ) ->
+                limiter ->
+                  log.debug { repo, command }
+                  if failures[ repo ] <= retries
+                    try
+                      result = await Script.run command, cwd: repo
+                      log.debug { repo, result }
+                      succeeded++
+                      do progress.increment
+                    catch error
+                      log.error
+                        console: true
+                        repo: repo
+                        message: error.message
+                        error: error
+                      push failed, repo if retry
+                  else
+                    log.error
+                      console: true
+                      repo: repo 
+                      failures: failures[ repo ]
+                      retries: retries
+                      message: "Too many failures"
+
           await Promise.all pending
 
           # demote failures

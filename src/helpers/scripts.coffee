@@ -42,7 +42,6 @@ Script =
       log.debug { command, result }
     catch error
       log.error { command, error }
-      console.log error
       throw new Error "command failed"
 
 export { Scripts, Script }
