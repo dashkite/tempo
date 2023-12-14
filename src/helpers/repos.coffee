@@ -170,30 +170,33 @@ Repos =
         while ( group = groups[ index ])? && ( succeeded != before )
           before = succeeded
           failed = []
-          for subgroup from partition batch, group
-            await Promise.all do ->
-              for repo in subgroup
-                do ( repo ) ->
-                  log.debug { repo }
-                  if failures[ repo ] <= retries
-                    try
-                      result = await Script.run command, cwd: repo
-                      log.debug { repo: repo, result }
-                      succeeded++
-                      do progress.increment
-                    catch error
-                      log.error
-                        repo: repo
-                        message: error.message
-                        error: error
-                      push failed, repo if retry
-                  else
-                    log.error
-                      console: true
-                      repo: repo 
-                      failures: failures[ repo ]
-                      retries: retries
-                      message: "Too many failures"
+          pending = []
+          for repo in group
+            pending.push do ( repo ) ->
+              log.debug { repo }
+              if failures[ repo ] <= retries
+                try
+                  result = await Script.run command, cwd: repo
+                  log.debug { repo: repo, result }
+                  succeeded++
+                  do progress.increment
+                catch error
+                  log.error
+                    repo: repo
+                    message: error.message
+                    error: error
+                  push failed, repo if retry
+              else
+                log.error
+                  console: true
+                  repo: repo 
+                  failures: failures[ repo ]
+                  retries: retries
+                  message: "Too many failures"
+            unless pending.length < batch
+              promise = await Promise.any pending
+              remove pending, promise
+          await Promise.all pending
 
           # demote failures
           if succeeded != before && failed.length > 0
