@@ -142,7 +142,6 @@ Repos =
           unless found
             push groups[ 0 ], repo.name
         
-  
         groups = groups
           # remove repos that are not in the target repos list
           .map ( group ) ->
