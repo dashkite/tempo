@@ -10,7 +10,8 @@
     "tempo": "./build/node/src/bin/tempo"
   },
   "scripts": {
-    "test": "genie test"
+    "test": "genie test",
+    "build": "genie build"
   },
   "repository": {
     "type": "git",
@@ -47,7 +48,7 @@
   },
   "devDependencies": {
     "@dashkite/amen": "^0.2.0",
-    "@dashkite/genie": "^0.5.11",
-    "@dashkite/genie-presets": "^0.6.0"
+    "@dashkite/genie": "^0.7.3",
+    "@dashkite/genie-coffee": "link:../genie-coffee"
   }
 }
