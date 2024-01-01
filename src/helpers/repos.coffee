@@ -186,7 +186,6 @@ Repos =
                       do progress.increment
                     catch error
                       log.error
-                        console: true
                         repo: repo
                         message: error.message
                         error: error
