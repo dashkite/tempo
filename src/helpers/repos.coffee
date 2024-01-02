@@ -268,6 +268,7 @@ Repo =
           _repo
 
   tag: ( repo, tags ) ->
+    repo.tags ?= []
     repo.tags = Array.from new Set [ repo.tags..., tags... ]
     Repo.save repo
 
