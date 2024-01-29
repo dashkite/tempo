@@ -18,8 +18,8 @@ dependencies:
     specifier: 0.4.8
     version: 0.4.8
   '@dashkite/zephyr':
-    specifier: ^0.1.1
-    version: 0.1.1
+    specifier: link:../zephyr
+    version: link:../zephyr
   chalk:
     specifier: ^4.1.2
     version: 4.1.2
@@ -120,13 +120,6 @@ packages:
 
   /@dashkite/utf8@1.0.1:
     resolution: {integrity: sha512-58HZrEijYUG9p8SAf4o/NR7U3qUq//9XbkQ7T5cHIY/RFjCVg9vpWZlHXkcbZp7v3CAMJgEGVXt/5/upvOBQAw==}
-    dev: false
-
-  /@dashkite/zephyr@0.1.1:
-    resolution: {integrity: sha512-iyXegNpPTbQEBU5mfMpm/XOFGjQX1y12uxW2vx21sWztJKA5vymAv79mkg3CY3Qnf6eqWtEMR9YNX/idhGBn+Q==}
-    dependencies:
-      '@dashkite/joy': 0.3.16
-      js-yaml: 4.1.0
     dev: false
 
   /@nodelib/fs.scandir@2.1.5:

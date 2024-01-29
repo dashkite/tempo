@@ -127,7 +127,7 @@ Metarepo =
           if !( await Repo.changed name )
             try
               await FS.rm path, recursive: true
-              await FS.rm path
+              await FS.rm name
             catch error
               log.error error
           else

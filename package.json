@@ -35,7 +35,7 @@
     "@dashkite/joy": "^0.3.16",
     "@dashkite/kaiko": "^0.3.1",
     "@dashkite/katana": "0.4.8",
-    "@dashkite/zephyr": "^0.1.1",
+    "@dashkite/zephyr": "link:../zephyr",
     "chalk": "^4.1.2",
     "commander": "^10.0.0",
     "dayjs": "^1.11.10",
