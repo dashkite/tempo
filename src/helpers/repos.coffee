@@ -192,7 +192,6 @@ Repos =
                       push failed, repo if retry
                   else
                     log.error
-                      console: true
                       repo: repo 
                       failures: failures[ repo ]
                       retries: retries
@@ -215,6 +214,13 @@ Repos =
           index++
 
         do progress.stop
+
+        for repo in failed
+          log.error
+            console:true
+            repo: repo
+            message: "failed"
+
 
         log.info 
           console: true
