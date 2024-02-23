@@ -50,6 +50,7 @@
     "@dashkite/amen": "^0.2.0",
     "@dashkite/genie": "^0.8.0",
     "@dashkite/genie-clean": "^0.1.0",
-    "@dashkite/genie-coffee": "^0.1.0"
+    "@dashkite/genie-coffee": "^0.1.0",
+    "@dashkite/genie-release": "^0.1.0"
   }
 }

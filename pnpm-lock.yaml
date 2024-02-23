@@ -61,6 +61,9 @@ devDependencies:
   '@dashkite/genie-coffee':
     specifier: ^0.1.0
     version: 0.1.0
+  '@dashkite/genie-release':
+    specifier: ^0.1.0
+    version: 0.1.0
 
 packages:
 
@@ -1292,6 +1295,12 @@ packages:
     transitivePeerDependencies:
       - '@swc/helpers'
       - supports-color
+    dev: true
+
+  /@dashkite/genie-release@0.1.0:
+    resolution: {integrity: sha512-mlkJZhaKOwWWpqTKjpwJV8BfpFDXTm1Ndj0EDrh6xB9SeZF/oBaXlKgrN028z5CKMWhnEC1SSt2hd7bqmTlf1w==}
+    dependencies:
+      execa: 5.1.1
     dev: true
 
   /@dashkite/genie@0.8.0:
