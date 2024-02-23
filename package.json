@@ -33,9 +33,9 @@
   "dependencies": {
     "@dashkite/bake": "^0.0.6",
     "@dashkite/joy": "^0.3.16",
-    "@dashkite/kaiko": "^0.3.1",
+    "@dashkite/kaiko": "^0.3.3",
     "@dashkite/katana": "0.4.8",
-    "@dashkite/zephyr": "link:../zephyr",
+    "@dashkite/zephyr": "^0.2.0",
     "chalk": "^4.1.2",
     "commander": "^10.0.0",
     "dayjs": "^1.11.10",
@@ -48,8 +48,8 @@
   },
   "devDependencies": {
     "@dashkite/amen": "^0.2.0",
-    "@dashkite/genie": "^0.7.3",
-    "@dashkite/genie-clean": "link:../genie-clean",
-    "@dashkite/genie-coffee": "link:../genie-coffee"
+    "@dashkite/genie": "^0.8.0",
+    "@dashkite/genie-clean": "^0.1.0",
+    "@dashkite/genie-coffee": "^0.1.0"
   }
 }
