@@ -12,8 +12,8 @@ dependencies:
     specifier: ^0.3.16
     version: 0.3.16
   '@dashkite/kaiko':
-    specifier: link:../kaiko
-    version: link:../kaiko
+    specifier: ^0.3.3
+    version: 0.3.3
   '@dashkite/katana':
     specifier: 0.4.8
     version: 0.4.8
@@ -1327,7 +1327,6 @@ packages:
 
   /@dashkite/kaiko@0.3.3:
     resolution: {integrity: sha512-XnAvVr9y2MsDqMLr4A24vkLF7Iuq3E8RjHEEpqhe29P5NevVX9jXKcXUStNMp9MSJbjHd2pqUNiM5Vvdja9ggg==}
-    dev: true
 
   /@dashkite/katana@0.4.8:
     resolution: {integrity: sha512-KOfMS5aRZItxPeMv0OXbOTCj5BZhN9jM190jae8HB7WgGB5uM5jEzRWmyh3yVbxTaL83o7csktRzUkxkr/Op1A==}
