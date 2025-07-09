@@ -51,7 +51,6 @@
     "@dashkite/genie": "^0.8.4",
     "@dashkite/genie-clean": "^0.1.0",
     "@dashkite/genie-coffee": "^0.1.0",
-    "@dashkite/genie-release": "^0.1.0",
-    "@dashkite/vista": "link:../vista"
+    "@dashkite/genie-release": "^0.1.0"
   }
 }
