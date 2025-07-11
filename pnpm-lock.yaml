@@ -64,8 +64,8 @@ importers:
         specifier: ^0.1.0
         version: 0.1.0
       '@dashkite/genie-release':
-        specifier: ^0.1.0
-        version: 0.1.0
+        specifier: ^0.2.1
+        version: 0.2.1
 
 packages:
 
@@ -634,8 +634,8 @@ packages:
   '@dashkite/genie-coffee@0.1.0':
     resolution: {integrity: sha512-2yV0xDKdUq2LYFl7vXWj3Yj7eG8afAFQDHtV2IyF90kkTCQIoYdWDkP/ArFpdPE5og3ci0ajy0PIAYJQvZfYGw==}
 
-  '@dashkite/genie-release@0.1.0':
-    resolution: {integrity: sha512-mlkJZhaKOwWWpqTKjpwJV8BfpFDXTm1Ndj0EDrh6xB9SeZF/oBaXlKgrN028z5CKMWhnEC1SSt2hd7bqmTlf1w==}
+  '@dashkite/genie-release@0.2.1':
+    resolution: {integrity: sha512-j4U8WyInBX82JunZPWy6kAFrrY9pd7GnsJbJpEuh/6w8HnHniEa5gRVDALOo9OD+eRclFYcrNFzXiHu54MZs8g==}
 
   '@dashkite/genie@0.8.4':
     resolution: {integrity: sha512-f4c84JoTaIoEvSwwre9lOD4V1/AHMp9prIeiJrD4/hRWiGcO+HYqjzjK7mNA2kfq68K/I3y9F5QYhlaG8QpCYA==}
@@ -1532,6 +1532,11 @@ packages:
     resolution: {integrity: sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==}
     engines: {node: '>=10'}
 
+  zx@8.7.0:
+    resolution: {integrity: sha512-pArftqj5JV/er8p+czFZwF+k6SbCldl7kcfCR+rIiDIh3gUsLB0F3Xh05diP8PzToZ39D/GWeFoVFimjHQkbAg==}
+    engines: {node: '>= 12.17.0'}
+    hasBin: true
+
 snapshots:
 
   '@ampproject/remapping@2.3.0':
@@ -2289,9 +2294,10 @@ snapshots:
       - '@swc/helpers'
       - supports-color
 
-  '@dashkite/genie-release@0.1.0':
+  '@dashkite/genie-release@0.2.1':
     dependencies:
-      execa: 5.1.1
+      '@dashkite/zephyr': 0.2.0
+      zx: 8.7.0
 
   '@dashkite/genie@0.8.4':
     dependencies:
@@ -3136,3 +3142,5 @@ snapshots:
   yallist@3.1.1: {}
 
   yocto-queue@0.1.0: {}
+
+  zx@8.7.0: {}
