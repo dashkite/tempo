@@ -64,8 +64,8 @@ importers:
         specifier: ^0.1.0
         version: 0.1.0
       '@dashkite/genie-release':
-        specifier: ^0.4.1
-        version: 0.4.1
+        specifier: ^0.4.2
+        version: 0.4.2
 
 packages:
 
@@ -634,8 +634,8 @@ packages:
   '@dashkite/genie-coffee@0.1.0':
     resolution: {integrity: sha512-2yV0xDKdUq2LYFl7vXWj3Yj7eG8afAFQDHtV2IyF90kkTCQIoYdWDkP/ArFpdPE5og3ci0ajy0PIAYJQvZfYGw==}
 
-  '@dashkite/genie-release@0.4.1':
-    resolution: {integrity: sha512-VbcmOa7MpQr9Vw7DDLLHU1dtAR6W31oQLeSh+MwYZ4JvMcCSv4oXWDE30kEmLNH84FhPQQNWK8nyBxXkJq8PJg==}
+  '@dashkite/genie-release@0.4.2':
+    resolution: {integrity: sha512-h25ymrsMLDfwIQszfA6DzmXwWnW1YpZ5gHypk7lSRdDHXRcmBWwBV8KJoqhh4ti6mCZqggV2TkRCEGYGge+myQ==}
 
   '@dashkite/genie@0.20.6':
     resolution: {integrity: sha512-X623qdU3bgTBWPM2nQKrJ1uqNmPGbE3TR6VnrTBE6V7SziV4dNnWTkak9ShiIjltg1mGfNoxkbOXa3DDtynF+g==}
@@ -2305,7 +2305,7 @@ snapshots:
       - '@swc/helpers'
       - supports-color
 
-  '@dashkite/genie-release@0.4.1':
+  '@dashkite/genie-release@0.4.2':
     dependencies:
       '@dashkite/zephyr': 0.12.1
       dax-sh: 0.43.2

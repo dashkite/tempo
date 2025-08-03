@@ -51,6 +51,6 @@
     "@dashkite/genie": "^0.20.6",
     "@dashkite/genie-clean": "^0.1.0",
     "@dashkite/genie-coffee": "^0.1.0",
-    "@dashkite/genie-release": "^0.4.1"
+    "@dashkite/genie-release": "^0.4.2"
   }
 }
