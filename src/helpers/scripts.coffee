@@ -21,7 +21,10 @@ Scripts =
 
   find: ( name ) ->
     scripts = await do Scripts.load
-    scripts[ name ]
+    if scripts[ name ]?
+      scripts[ name ]
+    else
+      throw new Error "script not found: #{ name }"
 
 Script = 
 
