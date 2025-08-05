@@ -1,5 +1,8 @@
 import * as TK from "terminal-kit"
 
+pct = ( n, m ) ->
+  ((Math.floor ( n / m ) * 100) / 100)
+
 Progress = 
   enabled: false
   make: ({ title, count }) ->
@@ -14,7 +17,7 @@ Progress =
       counter = 0
 
       start: -> bar.update 0
-      increment: -> bar.update ++counter / count
+      increment: -> bar.update pct ++counter, count
       stop: -> 
         bar.stop()
         TK.terminal "\n"

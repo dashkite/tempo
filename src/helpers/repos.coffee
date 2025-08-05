@@ -1,9 +1,11 @@
 import Path from "node:path"
+import Crypto from "node:crypto"
 import * as Fn from "@dashkite/joy/function"
 import * as It from "@dashkite/joy/iterable"
 import * as Type from "@dashkite/joy/type"
 import * as Text from "@dashkite/joy/text"
 import { generic } from "@dashkite/joy/generic"
+import { convert } from "@dashkite/bake"
 import Zephyr from "@dashkite/zephyr"
 import log from "@dashkite/kaiko"
 import pLimit from "p-limit"
@@ -29,6 +31,22 @@ partition = ( size, list ) ->
   j = Math.ceil list.length / size
   while i < j
     yield slice list, ( i++ * size ), size
+
+
+Hash =
+
+  md5: ( buffer ) ->
+    convert from: "bytes", to: "base36",
+      new Uint8Array do ->
+        Crypto
+          .createHash "md5"
+          .update buffer
+          .digest()
+          .buffer
+
+  array: ( array ) ->
+    Text.truncate 8, 
+      Hash.md5 array.sort().join ","
 
 Memos =
 
@@ -150,70 +168,92 @@ Repos =
           # remove empty groups since they will halt the run loop
           .filter ( group ) -> group.length != 0
 
-        index = 0
-        succeeded = 0
-        before = -1
+        failed = undefined
+        hash = undefined
         retries = if retry then 6 else 0
+        history = []
 
         # initialize failures lookup
         failures = {}
         ( failures[ repo.name ] = 0 ) for repo in repos  
+
+  
 
         log.info 
           console: true
           message: "Running [ #{ Text.elide 40, "...", command } ]"
           command: command
 
-        progress = Progress.make count: repos.length
-        do progress.start
-
         limiter = pLimit batch
 
-        while ( group = groups[ index ])? && ( succeeded != before )
-          before = succeeded
-          failed = []
+        done = ->
+          failed? &&
+            (( failed.length == 0 ) ||
+              (( hash = Hash.array failed ) in history ))
 
-          pending = 
-            for repo in group
-              do ( repo ) ->
-                limiter ->
-                  log.debug { repo, command }
-                  if failures[ repo ] <= retries
-                    try
-                      result = await Script.run command, cwd: repo
-                      log.debug { repo, result }
-                      succeeded++
-                      do progress.increment
-                    catch error
+        count = 0
+        while !done()
+
+          ( history.push hash ) if hash?
+          ( groups.push failed ) if failed?
+
+          index = 0
+          succeeded = 0
+          before = -1
+
+          progress.stop() if progress?
+          console.log "Attempt ##{ ++count }"
+          progress = Progress.make count: repos.length
+          progress.start()
+
+          mulligan = true
+          while ( group = groups[ index ])? && (( succeeded > before ) || mulligan)
+            mulligan = false if succeeded == before
+            before = succeeded
+            failed = []
+
+            pending = 
+              for repo in group
+                do ( repo ) ->
+                  limiter ->
+                    log.debug { repo, command }
+                    if failures[ repo ] <= retries
+                      try
+                        result = await Script.run command, cwd: repo
+                        log.debug { repo, result }
+                        succeeded++
+                        progress.increment()
+                      catch error
+                        log.error
+                          repo: repo
+                          message: error.message
+                          error: error
+                        push failed, repo
+                    else
                       log.error
-                        repo: repo
-                        message: error.message
-                        error: error
-                      push failed, repo if retry
-                  else
-                    log.error
-                      repo: repo 
-                      failures: failures[ repo ]
-                      retries: retries
-                      message: "Too many failures"
+                        repo: repo 
+                        failures: failures[ repo ]
+                        retries: retries
+                        message: "Too many failures"
+                      push failed, repo
 
-          await Promise.all pending
+            await Promise.all pending
 
-          # demote failures
-          if succeeded != before && failed.length > 0
-            groups[ index + 1 ] ?= []
-            for repo in failed
-              log.debug {
-                message: "demoting repo"
-                repo
-              }
-              failures[ repo ]++
-              remove group, repo
-              push groups[ index + 1 ], repo
+            # demote failures
+            if ( succeeded > before ) && ( failed.length > 0 )
+              groups[ index + 1 ] ?= []
+              for repo in failed
+                log.debug {
+                  message: "demoting repo"
+                  repo
+                }
+                failures[ repo ]++
+                remove group, repo
+                push groups[ index + 1 ], repo
 
-          index++
+            index++
 
-        do progress.stop
+        progress.stop()
 
         for repo in failed
           log.error
