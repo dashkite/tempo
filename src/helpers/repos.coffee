@@ -178,7 +178,7 @@ Repos =
 
         done = ->
           failed? &&
-            (( failed.length > 0 ) ||
+            (( failed.length == 0 ) ||
               (( hash = Hash.array failed ) in history ))
 
         count = 0
