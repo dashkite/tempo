@@ -56,6 +56,9 @@ program
   .option "-x, --exclude <exclude>", "YAML file containing repos to exclude"
   .option "-t, --tags <tags>", "Tags to include, separated by +", Tags.parse
   .option "-s, --serial", "Run command for each repo serially"
+  .option "-b, --batch <batch>", "Run command for <batch> repos in parallel", 6
+  .option "-r, --retries <retries>", "Allow for <retries> retries for each repo", 6
+  .option "-m, --memo <memo>", "Use memoization file given by <memo>"
   .option "-P, --no-progress", "Don't show progress bar"
   .passThroughOptions()
   .argument "<command>", "The command to run"
@@ -69,6 +72,9 @@ program
   .option "-x, --exclude <exclude>", "YAML or JSON file of repos to exclude"
   .option "-t, --tags <tags>", "Tags to include, separated by +", Tags.parse
   .option "-s, --serial", "Run command for each repo serially"
+  .option "-b, --batch <batch>", "Run command for <batch> repos in parallel", 6
+  .option "-r, --retries <retries>", "Allow for <retries> retries for each repo", 6
+  .option "-m, --memo <memo>", "Use memoization file given by <memo>"
   .option "-P, --no-progress", "Don't show progress bar"
   .argument "<script>", "The script to run"
   .argument "[arguments...]", "Arguments to pass, if any"

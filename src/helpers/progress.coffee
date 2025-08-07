@@ -18,6 +18,7 @@ Progress =
 
       start: -> bar.update 0
       increment: -> bar.update pct ++counter, count
+      set: ( counter ) -> bar.update pct counter, count
       stop: -> 
         bar.stop()
         TK.terminal "\n"

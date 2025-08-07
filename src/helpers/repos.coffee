@@ -1,6 +1,7 @@
 import Path from "node:path"
 import Crypto from "node:crypto"
 import * as Fn from "@dashkite/joy/function"
+import * as Arr from "@dashkite/joy/array"
 import * as It from "@dashkite/joy/iterable"
 import * as Type from "@dashkite/joy/type"
 import * as Text from "@dashkite/joy/text"
@@ -47,10 +48,6 @@ Hash =
   array: ( array ) ->
     Text.truncate 8, 
       Hash.md5 array.sort().join ","
-
-Memos =
-
-  path: Path.join ".tempo", "memos.json"
 
 Repos =
   
@@ -140,18 +137,15 @@ Repos =
     run = generic name: "Repos.run"
 
     generic run, Type.isObject,
-      ({ repos, command, key, batch, retry }) ->
+      ({ repos, command, key, retries, memo, batch }) ->
 
-        batch ?= 6 # max parallel builds
-        retry ?= true
-
-        if retry
-          memos = await Zephyr.read Memos.path
+        if memo?
+          memos = await Zephyr.read memo
           memos ?= {}
           groups = memos[ key ]
 
         # default the trivial group
-        groups ?= [( repos.map ({ name }) -> name )]
+        groups ?= [ Arr.shuffle ( repos.map ({ name }) -> name ) ]
 
         # check for missing repos
         # add to first group if we find any
@@ -170,14 +164,10 @@ Repos =
 
         failed = undefined
         hash = undefined
-        retries = if retry then 6 else 0
         history = []
-
         # initialize failures lookup
         failures = {}
         ( failures[ repo.name ] = 0 ) for repo in repos  
-
-  
 
         log.info 
           console: true
@@ -188,18 +178,21 @@ Repos =
 
         done = ->
           failed? &&
-            (( failed.length == 0 ) ||
+            (( failed.length > 0 ) ||
               (( hash = Hash.array failed ) in history ))
 
         count = 0
         while !done()
 
+          if count > 0
+            groups = [ Arr.shuffle ( repos.map ({ name }) -> name ) ]
+
+
           ( history.push hash ) if hash?
           ( groups.push failed ) if failed?
 
           index = 0
-          succeeded = 0
-          before = -1
+          succeeded = new Set
 
           progress.stop() if progress?
           console.log "Attempt ##{ ++count }"
@@ -207,9 +200,8 @@ Repos =
           progress.start()
 
           mulligan = true
-          while ( group = groups[ index ])? && (( succeeded > before ) || mulligan)
-            mulligan = false if succeeded == before
-            before = succeeded
+          while ( group = groups[ index ])?
+            before = succeeded.size
             failed = []
 
             pending = 
@@ -221,8 +213,9 @@ Repos =
                       try
                         result = await Script.run command, cwd: repo
                         log.debug { repo, result }
-                        succeeded++
-                        progress.increment()
+                        succeeded.add repo
+                        console.log { repo, succeeded: succeeded.size }
+                        progress.set succeeded.size
                       catch error
                         log.error
                           repo: repo
@@ -235,40 +228,47 @@ Repos =
                         failures: failures[ repo ]
                         retries: retries
                         message: "Too many failures"
-                      push failed, repo
 
             await Promise.all pending
 
-            # demote failures
-            if ( succeeded > before ) && ( failed.length > 0 )
-              groups[ index + 1 ] ?= []
-              for repo in failed
-                log.debug {
-                  message: "demoting repo"
-                  repo
-                }
-                failures[ repo ]++
-                remove group, repo
-                push groups[ index + 1 ], repo
+            if ( failed.length > 0 )
+              
+              if mulligan
+                mulligan = false
+              else
+                mulligan = true
+                if ( succeeded.size > before )
+                  groups[ ++index ] ?= []
+                else
+                  ++index
 
-            index++
+                if groups[ index ]?
+                  for repo in failed
+                    log.debug {
+                      message: "demoting repo"
+                      repo
+                    }
+                    failures[ repo ]++
+                    remove group, repo
+                    push groups[ index ], repo
+
+            else
+
+              mulligan = true
+              ++index
 
         progress.stop()
 
-        for repo in failed
+        for repo in repos when !( succeeded.has repo.name )
           log.error
             console:true
             repo: repo
             message: "failed"
 
-
         log.info 
           console: true
-          message: "succeeded: #{ succeeded },
-            failed: #{ repos.length - succeeded }"
-
-        memos[ key ] = groups
-        Zephyr.write ".tempo/memos.json", memos
+          message: "succeeded: #{ succeeded.size },
+            failed: #{ repos.length - succeeded.size }"
 
     generic run, 
       ( has "serial" ),
