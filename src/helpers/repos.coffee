@@ -33,7 +33,6 @@ partition = ( size, list ) ->
   while i < j
     yield slice list, ( i++ * size ), size
 
-
 Hash =
 
   md5: ( buffer ) ->
@@ -162,7 +161,7 @@ Repos =
           # remove empty groups since they will halt the run loop
           .filter ( group ) -> group.length != 0
 
-        failed = undefined
+        succeeded = undefined
         hash = undefined
         history = []
         # initialize failures lookup
@@ -176,17 +175,12 @@ Repos =
 
         limiter = pLimit batch
 
-        done = ->
-          failed? &&
-            (( failed.length == 0 ) ||
-              (( hash = Hash.array failed ) in history ))
-
         count = 0
-        while !done()
+        done = false
+        while !done
 
           if count > 0
             groups = [ Arr.shuffle ( repos.map ({ name }) -> name ) ]
-
 
           ( history.push hash ) if hash?
           ( groups.push failed ) if failed?
@@ -214,20 +208,27 @@ Repos =
                         result = await Script.run command, cwd: repo
                         log.debug { repo, result }
                         succeeded.add repo
-                        console.log { repo, succeeded: succeeded.size }
-                        progress.set succeeded.size
+                        console.log
+                          succeeded: repo
+                          count: succeeded.size
                       catch error
                         log.error
                           repo: repo
                           message: error.message
                           error: error
+                        succeeded.delete repo
                         push failed, repo
+                        console.log
+                          failed: repo
+                          count: succeeded.size
                     else
                       log.error
                         repo: repo 
                         failures: failures[ repo ]
                         retries: retries
                         message: "Too many failures"
+
+                    progress.set succeeded.size
 
             await Promise.all pending
 
@@ -257,12 +258,18 @@ Repos =
               mulligan = true
               ++index
 
+          done = succeeded? &&
+            (( succeeded.size == repos.length ) ||
+              (( hash = Hash.array Array.from succeeded ) in history ))
+
+
+
         progress.stop()
 
         for repo in repos when !( succeeded.has repo.name )
           log.error
             console:true
-            repo: repo
+            repo: repo.name
             message: "failed"
 
         log.info 
