@@ -208,9 +208,6 @@ Repos =
                         result = await Script.run command, cwd: repo
                         log.debug { repo, result }
                         succeeded.add repo
-                        console.log
-                          succeeded: repo
-                          count: succeeded.size
                       catch error
                         log.error
                           repo: repo
@@ -218,9 +215,6 @@ Repos =
                           error: error
                         succeeded.delete repo
                         push failed, repo
-                        console.log
-                          failed: repo
-                          count: succeeded.size
                     else
                       log.error
                         repo: repo 
