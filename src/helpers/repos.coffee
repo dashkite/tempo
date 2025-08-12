@@ -136,12 +136,10 @@ Repos =
     run = generic name: "Repos.run"
 
     generic run, Type.isObject,
-      ({ repos, command, key, retries, memo, batch }) ->
+      ({ repos, command, key, retries, order, batch, determined }) ->
 
-        if memo?
-          memos = await Zephyr.read memo
-          memos ?= {}
-          groups = memos[ key ]
+        if order?
+          groups = await Zephyr.read order
 
         # default the trivial group
         groups ?= [ Arr.shuffle ( repos.map ({ name }) -> name ) ]
@@ -189,13 +187,13 @@ Repos =
           succeeded = new Set
 
           progress.stop() if progress?
-          console.log "Attempt ##{ ++count }"
+          if determined
+            console.log "Attempt ##{ ++count }"
           progress = Progress.make count: repos.length
           progress.start()
 
           mulligan = true
-          while ( group = groups[ index ])?
-            before = succeeded.size
+          while (( group = groups[ index ])? && ( group.length > 0 ))
             failed = []
 
             pending = 
@@ -232,10 +230,7 @@ Repos =
                 mulligan = false
               else
                 mulligan = true
-                if ( succeeded.size > before )
-                  groups[ ++index ] ?= []
-                else
-                  ++index
+                groups[ ++index ] ?= []
 
                 if groups[ index ]?
                   for repo in failed
@@ -243,20 +238,18 @@ Repos =
                       message: "demoting repo"
                       repo
                     }
-                    failures[ repo ]++
-                    remove group, repo
-                    push groups[ index ], repo
+                    if ++failures[ repo ] > retries
+                      remove group, repo
+                      push groups[ index ], repo
 
             else
 
               mulligan = true
               ++index
 
-          done = succeeded? &&
+          done = !determined ||
             (( succeeded.size == repos.length ) ||
               (( hash = Hash.array Array.from succeeded ) in history ))
-
-
 
         progress.stop()
 

@@ -52,13 +52,24 @@ program
 program
   .command "exec"
   .description "run a command across repos"
-  .option "-i, --include <include>", "YAML file containing repos to include"
-  .option "-x, --exclude <exclude>", "YAML file containing repos to exclude"
-  .option "-t, --tags <tags>", "Tags to include, separated by +", Tags.parse
+  .option "-i, --include <include>", 
+    "YAML file containing repos to include"
+  .option "-x, --exclude <exclude>", 
+    "YAML file containing repos to exclude"
+  .option "-t, --tags <tags>", 
+    "Tags to include, separated by +", 
+    Tags.parse
   .option "-s, --serial", "Run command for each repo serially"
-  .option "-b, --batch <batch>", "Run command for <batch> repos in parallel", 6
-  .option "-r, --retries <retries>", "Allow for <retries> retries for each repo", 6
-  .option "-m, --memo <memo>", "Use memoization file given by <memo>"
+  .option "-b, --batch <batch>", 
+    "Run command for <batch> repos in parallel", 
+    6
+  .option "-r, --retries <retries>", 
+    "Allow for <retries> retries for each repo",
+    6
+  .option "-o, --order <order>",
+    "Use partial ordering specified in YAML or JSON file <order>"
+  .option "-d, --determined",
+    "Re-run the command even if there are persistent failures"
   .option "-P, --no-progress", "Don't show progress bar"
   .passThroughOptions()
   .argument "<command>", "The command to run"
@@ -68,13 +79,27 @@ program
 program
   .command "run"
   .description "run a saved script"
-  .option "-i, --include <include>", "YAML or JSON file of repos to include"
-  .option "-x, --exclude <exclude>", "YAML or JSON file of repos to exclude"
-  .option "-t, --tags <tags>", "Tags to include, separated by +", Tags.parse
-  .option "-s, --serial", "Run command for each repo serially"
-  .option "-b, --batch <batch>", "Run command for <batch> repos in parallel", 6
-  .option "-r, --retries <retries>", "Allow for <retries> retries for each repo", 6
-  .option "-m, --memo <memo>", "Use memoization file given by <memo>"
+  .option "-i, --include <include>", 
+    "YAML or JSON file of repos to include"
+  .option "-x, --exclude <exclude>",
+    "YAML or JSON file of repos to exclude"
+  .option "-t, --tags <tags>", 
+    "Tags to include, separated by +",
+    Tags.parse
+  .option "-s, --serial", 
+    "Run command for each repo serially.
+    Sets the batch size to 1."
+  .option "-b, --batch <batch>",
+    "Run command for <batch> repos in parallel",
+    6
+  .option "-r, --retries <retries>",
+    "Allow for <retries> retries for each repo",
+    6
+  .option "-o, --order <order>",
+    "Use partial ordering specified in YAML or JSON file <order>"
+  .option "-d, --determined",
+    "Re-run the command even if there are persistent failures",
+    false
   .option "-P, --no-progress", "Don't show progress bar"
   .argument "<script>", "The script to run"
   .argument "[arguments...]", "Arguments to pass, if any"
@@ -84,8 +109,10 @@ program
   .command "tag"
   .description "add tags to a repository"
   .option "-r, --repos <repos...>", "The name of an individual repo"
-  .option "-i, --include <include>", "YAML or JSON file of repos to include"
-  .option "-x, --exclude <exclude>", "YAML or JSON file of repos to exclude"
+  .option "-i, --include <include>",
+    "YAML or JSON file of repos to include"
+  .option "-x, --exclude <exclude>",
+    "YAML or JSON file of repos to exclude"
   .argument "<tags...>", "The tags to apply to a set of repos"
   .action Command.wrap Metarepo.tag
 
@@ -93,15 +120,18 @@ program
   .command "untag"
   .description "remove tags from a repository"
   .option "-r, --repos <repos...>", "The name of an individual repo"
-  .option "-i, --include <include>", "YAML or JSON file of repos to include"
-  .option "-x, --exclude <exclude>", "YAML or JSON file of repos to exclude"
+  .option "-i, --include <include>", 
+    "YAML or JSON file of repos to include"
+  .option "-x, --exclude <exclude>",
+    "YAML or JSON file of repos to exclude"
   .argument "<tags...>", "The tags to apply to a set of repos"
   .action Command.wrap Metarepo.untag
 
 for command in program.commands
   command
     .option "-v, --verbose", "Perform debug logging"
-    .option "-l, --logfile <filename>", "Override the default logfile"
+    .option "-l, --logfile <filename>", 
+      "Override the default logfile"
     .option "-P, --no-progress", "Don't show progress bar"
 
 program.parseAsync()
