@@ -181,7 +181,6 @@ Repos =
             groups = [ Arr.shuffle ( repos.map ({ name }) -> name ) ]
 
           ( history.push hash ) if hash?
-          ( groups.push failed ) if failed?
 
           index = 0
           succeeded = new Set
