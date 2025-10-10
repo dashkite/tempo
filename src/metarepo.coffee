@@ -61,13 +61,17 @@ Metarepo =
   resolve: ( name ) ->
     Path.join Metarepo.Paths.repos, name
 
-  git: ({ organization, name }) ->
-    "git@github.com:#{ organization }/#{ name }.git"
+  git: ({ provider, organization, name }) ->
+    switch provider
+      when "github"
+        "git@github.com:#{ organization }/#{ name }.git"
+      when "codeberg"
+        "ssh://git@codeberg.org/#{ organization }/#{ name }.git"
 
   add: ( repo ) ->
-    { organization, name } = Repo.parse repo
+    { provider, organization, name } = Repo.parse repo
     try
-      await Repos.add { organization, name }
+      await Repos.add { provider, organization, name }
       await Metarepo.sync()
     catch error
       log.error error
@@ -76,16 +80,16 @@ Metarepo =
 
   remove: ( repo ) ->
     try
-      { organization, name } = Repo.parse repo
-      Repos.remove { organization, name }
+      { provider, organization, name } = Repo.parse repo
+      Repos.remove { provider, organization, name }
       await FS.rm ( Metarepo.resolve name ), recursive: true
       await FS.unlink name
     catch error
       log.error error
   
   clone: ( metarepo, { branch }) ->
-    { organization, name } = Repo.parse metarepo
-    git = Metarepo.git { organization, name }
+    { provider, organization, name } = Repo.parse metarepo
+    git = Metarepo.git { provider, organization, name }
     await Script.run "git clone #{ git }"
     cwd = process.cwd()
     process.chdir name
@@ -101,11 +105,12 @@ Metarepo =
       title: "Cloning Repos"
       count: repos.length
     do progress.start
-    for { organization, name } in repos
+    for { provider, organization, name } in repos
       unless await FSX.isDirectory Metarepo.resolve name
-        git = Metarepo.git { organization, name }
+        git = Metarepo.git { provider, organization, name }
         path = Metarepo.resolve name
         try
+          console.log "git clone #{ git } #{ path }"
           await Script.run "git clone #{ git } #{ path }"
           await Script.run "ln -sf #{ path }"
         catch error

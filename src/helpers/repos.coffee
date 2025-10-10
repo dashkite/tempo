@@ -55,15 +55,19 @@ Repos =
   initialize: ->
     Zephyr.update Repos.path, ( repos ) -> repos ?= []
 
-  load: -> Zephyr.read Repos.path
+  load: -> 
+    ( await Zephyr.read Repos.path )
+      .map ( repo ) ->
+        repo.provider ?= "github"
+        repo
 
   get: ( name ) ->
     repos = await do Repos.load
     repos.find ( repo ) -> repo.name == name
 
-  add: ({ organization, name }) ->
+  add: ({ provider, organization, name }) ->
     Zephyr.update Repos.path, ( repos ) ->
-      repos.push { organization, name }
+      repos.push { provider, organization, name }
       repos
 
   remove: ({ organization, name }) ->
@@ -292,11 +296,14 @@ Repos =
 Repo =
 
   parse: ( specifier ) ->
-    [ organization, name ] = specifier.split "/"
-    { organization, name }
+    [ provider, path ] = specifier.split ":"
+    [ organization, name ] = path.split "/"
+    { provider, organization, name }
 
   same: ( a, b ) ->
-    a.organization == b.organization && a.name == b.name
+    ( a.provider == b.provider ) &&
+      ( a.organization == b.organization ) && 
+      ( a.name == b.name )
 
   save: ( repo ) ->
     Zephyr.update Repos.path, ( repos ) ->
