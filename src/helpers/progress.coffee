@@ -25,6 +25,7 @@ Progress =
     else
       start: ->
       increment: ->
+      set: ->
       stop: ->
 
 export { Progress }
